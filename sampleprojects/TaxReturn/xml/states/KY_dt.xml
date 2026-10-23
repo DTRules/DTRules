@@ -7,7 +7,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:6dadee3a2450e1974f64731c3b481d4ee1a8f1cfa2045c3261357823305f1177</source_hash>
+<source_hash>sha256:37f5f19411648d99980839b8d4b6e004ce703ef2a60f7f3181b9e5ee6dcde335</source_hash>
 </source>
 <table_name>ky_military_retirement_exemption</table_name>
 <xls_file>KY.xlsx</xls_file>
@@ -16,19 +16,62 @@
 <COMMENTS>Kentucky military retirement exemption (2025). Flat $31,110 exemption (matches general pension exclusion). SBP payments receive same treatment. Honors MSRRA and SCRA. Source: MOAA State Report Card, KY DOR. Skeleton — see issue #446.</COMMENTS>
 <TABLE_NUMBER>41790</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
 <initial_actions></initial_actions>
-<conditions></conditions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer has military retired pay, a federal pension (Form 740 packet: Federal and Military Retirement Systems, taxable, Schedule P)</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>Y-N</columns>
+</condition_details>
+</conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>No military retirement pay</action_comment>
-<action_dsl>/* No military retirement pay - no exemption. */</action_dsl>
-<action_postfix></action_postfix>
-<columns>-</columns>
+<action_comment>Schedule M line 9 / Schedule P Part II: 100% of taxable retirement benefits or $31,110, whichever is less, per taxpayer (KRS 141.019(1)(g)1.b)</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and ky_pension_exclusion to result.ky_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay ky_pension_exclusion fmin cvd result.ky_military_retirement_exemption f+ /result.ky_military_retirement_exemption xdef
+</action_postfix>
+<columns>X--</columns>
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Kentucky has no military-specific exemption; military retired pay for service after 1997 takes the general pension income exclusion, the lesser of the pay and $31,110 per taxpayer (Schedule M line 9; Schedule P Part II line 3; KRS 141.019(1)(g)1.b; 2025 Form 740 packet). Service credit before 1998 would be exempt in full on Schedule P Part I and is not modelled.</policy_description>
+<policy_statement_postfix>"Kentucky has no military-specific exemption; military retired pay for service after 1997 takes the general pension income exclusion, the lesser of the pay and $31,110 per taxpayer (Schedule M line 9; Schedule P Part II line 3; KRS 141.019(1)(g)1.b; 2025 Form 740 packet). Service credit before 1998 would be exempt in full on Schedule P Part I and is not modelled."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No military retired pay for this taxpayer.</policy_description>
+<policy_statement_postfix>"No military retired pay for this taxpayer."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 41800: KY_Tax -->
@@ -37,7 +80,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:6dadee3a2450e1974f64731c3b481d4ee1a8f1cfa2045c3261357823305f1177</source_hash>
+<source_hash>sha256:37f5f19411648d99980839b8d4b6e004ce703ef2a60f7f3181b9e5ee6dcde335</source_hash>
 </source>
 <table_name>KY_Tax</table_name>
 <xls_file>KY.xlsx</xls_file>
@@ -49,9 +92,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.ky_state_tax = 0; set result.ky_taxable_income = 0; add "  Kentucky Tax Calculation (Form 740) - flat 4.00%" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.ky_state_tax = 0; set result.ky_taxable_income = 0; add "  Kentucky Tax Calculation (Form 740) - flat 4.00%" to job.audit_trail; set result.ky_military_retirement_exemption = 0.0; perform ky_military_retirement_exemption; add "  KY Schedule M line 9 pension income exclusion (military retired pay): $" + result.ky_military_retirement_exemption to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.ky_state_tax xdef 0 cvd /result.ky_taxable_income xdef "  Kentucky Tax Calculation (Form 740) - flat 4.00%" job.audit_trail swap addto
+0 cvd /result.ky_state_tax xdef 0 cvd /result.ky_taxable_income xdef "  Kentucky Tax Calculation (Form 740) - flat 4.00%" job.audit_trail swap addto 0.0 cvd /result.ky_military_retirement_exemption xdef /ky_military_retirement_exemption performtable "  KY Schedule M line 9 pension income exclusion (military retired pay): $" result.ky_military_retirement_exemption strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -69,10 +112,10 @@ true
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Compute KY taxable income (AGI − $3,270) and 4.00% tax</action_comment>
-<action_dsl>set result.ky_taxable_income = the maximum of (result.state_calc_agi - ky_standard_deduction) and 0.0; set result.ky_state_tax = result.ky_taxable_income * ky_tax_rate; add "  KY taxable income (AGI - $3,270): $" + result.ky_taxable_income to job.audit_trail; add "  KY state tax (4.00%): $" + result.ky_state_tax to job.audit_trail</action_dsl>
+<action_comment>Form 740: Kentucky AGI (line 9) is federal AGI less Schedule M subtractions, here the pension income exclusion; less the $3,270 standard deduction (line 10); tax 4% (line 12)</action_comment>
+<action_dsl>set result.ky_taxable_income = the maximum of (result.state_calc_agi - result.ky_military_retirement_exemption - ky_standard_deduction) and 0.0; set result.ky_state_tax = result.ky_taxable_income * ky_tax_rate; add "  KY taxable income (AGI - $3,270): $" + result.ky_taxable_income to job.audit_trail; add "  KY state tax (4.00%): $" + result.ky_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef result.ky_taxable_income ky_tax_rate fmul cvd /result.ky_state_tax xdef "  KY taxable income (AGI - $3,270): $" result.ky_taxable_income strconcat job.audit_trail swap addto "  KY state tax (4.00%): $" result.ky_state_tax strconcat job.audit_trail swap addto
+result.state_calc_agi result.ky_military_retirement_exemption f- ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef result.ky_taxable_income ky_tax_rate fmul cvd /result.ky_state_tax xdef "  KY taxable income (AGI - $3,270): $" result.ky_taxable_income strconcat job.audit_trail swap addto "  KY state tax (4.00%): $" result.ky_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -88,8 +131,8 @@ result.ky_taxable_income cvd /result.computed_state_taxable_income xdef result.k
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>KY flat tax: 4.00% × max(AGI − $3,270, 0)</policy_description>
-<policy_statement_postfix>"KY flat tax: 4.00% × max(AGI − $3,270, 0)"</policy_statement_postfix>
+<policy_description>KY flat tax: 4.00% x max(AGI - pension income exclusion (Schedule M line 9, up to $31,110 per taxpayer, applied to military retired pay) - $3,270, 0).</policy_description>
+<policy_statement_postfix>"KY flat tax: 4.00% x max(AGI - pension income exclusion (Schedule M line 9, up to $31,110 per taxpayer, applied to military retired pay) - $3,270, 0)."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

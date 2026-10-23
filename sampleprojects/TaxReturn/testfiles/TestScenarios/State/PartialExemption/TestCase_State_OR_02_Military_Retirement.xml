@@ -15,11 +15,11 @@
       limitations under the License.
    </copyright>
 
-   <!-- Oregon Military Retirement Test Case -->
-   <!-- Test Case OR-Military-02: Mixed service (prorated exemption) -->
-   <!-- OR provides prorated exemption for mixed service (before and after Oct 1, 1991) -->
-   <!-- This taxpayer served 1985-2005 (20 years total: 6 years before, 14 years after cutoff) -->
-   <!-- Proration: 6/20 = 30% exempt, 70% taxable -->
+   <!-- Oregon military retirement test case (OR-MIL-02). -->
+   <!-- Oregon has no military retirement subtraction for 2025; Schedule OR-ASC code 307 subtracts only -->
+   <!-- the share of a federal pension earned before October 1, 1991 (ORS 316.680(1)(e); 2025 -->
+   <!-- Publication OR-17 p. 73). The service dates the former heading assumed (1985 to 2005) are not -->
+   <!-- inputs of the scenario, so no subtraction can be worked; see SPEC 2.9. -->
 
    <id>OR-MIL-02</id>
    <tax_year>2025</tax_year>
@@ -27,30 +27,29 @@
    <state>OR</state>
    <city>Eugene</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $50,000 military retirement + $30,000 W2 = $80,000 -->
-   <!-- AGI: $80,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $65,000 -->
-   <!-- Federal Tax: ~$8,700 -->
-   <!-- OR: Progressive tax (4.75% to 9.9%) -->
-   <!-- OR Standard Deduction: $2,745 (single) -->
-   <!-- OR Personal Exemption: $239 -->
-   <!-- OR Military Retirement: Mixed service proration -->
-   <!-- Service years before Oct 1, 1991: 6 years (1985-1991) -->
-   <!-- Total service years: 20 years (1985-2005) -->
-   <!-- Exempt portion: $50,000 * (6/20) = $15,000 -->
-   <!-- Taxable military retirement: $50,000 - $15,000 = $35,000 -->
-   <!-- OR Taxable Income: $30,000 + $35,000 - $2,745 - $239 = $62,016 -->
-   <!-- OR Tax (progressive brackets): ~$4,600 -->
-   <!-- Total Tax: $13,300 -->
-   <!-- Withholding: $14,000 -->
-   <!-- Refund: $700 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $30,000 + line 5b military retired pay $50,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $80,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $64,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 15,775 = 5,578.50 + 3,470.50 = $9,049.00.
+        Withholding $14,000 less tax $9,049.00 = refund $4,951.00. -->
+   <!-- Oregon (2025 Form OR-40): line 7 federal AGI $80,000; line 10 federal tax subtraction = lesser
+        of $9,049 and the $8,500 cap = $8,500; line 13 subtractions $0; line 15 $71,500; line 17
+        standard deduction $2,835 (Single, 2025); line 19 taxable income $68,665; line 20 tax (rate
+        chart S): 4,065 + 8.75% x 18,665 = $5,698.19, whole dollars $5,698; line 25 exemption credit
+        $256; line 27 retirement income credit $0 (under 62). Line 29 Oregon tax $5,442.
+        OR_Tax is a #1200 placeholder and computes $7,648.25; the state check fails until #1200
+        rebuilds Oregon. -->
+   <!-- expected_state_tax was an approximate $4,600 after a 30% exemption from assumed service dates (#1330). -->
    <expected_agi>80000</expected_agi>
-   <expected_taxable_income>65000</expected_taxable_income>
-   <expected_total_tax>13300</expected_total_tax>
-   <expected_state_tax>4600</expected_state_tax>
-   <expected_refund>700</expected_refund>
+   <expected_taxable_income>64250</expected_taxable_income>
+   <expected_total_tax>9049</expected_total_tax>
+   <expected_state_tax>5442</expected_state_tax>
+   <expected_refund>4951</expected_refund>
 
    <!-- Retired Military Taxpayer (Served 1985-2005, mixed service) -->
    <taxpayers>

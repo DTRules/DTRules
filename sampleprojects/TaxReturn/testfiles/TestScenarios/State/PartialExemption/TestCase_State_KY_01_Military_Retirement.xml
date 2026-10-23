@@ -15,9 +15,12 @@
       limitations under the License.
    </copyright>
 
-   <!-- Kentucky Military Retirement Test Case -->
-   <!-- Test Case KY-Military-01: Military retirement (first $31,110 exempt) -->
-   <!-- KY provides flat $31,110 exemption for military retirement (2025) -->
+   <!-- Kentucky military retirement test case (KY-MIL-01). -->
+   <!-- Kentucky has no military-specific exemption: military retired pay is a federal pension and takes -->
+   <!-- the pension income exclusion, 100% of taxable retirement benefits or $31,110 per taxpayer, -->
+   <!-- whichever is less (Schedule M line 9; Schedule P Part II; KRS 141.019(1)(g)1.b; 2025 Form 740 -->
+   <!-- packet). Service credit earned before 1998 would be excluded in full on Schedule P Part I; -->
+   <!-- this retiree's service is after 1997. -->
 
    <id>KY-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -25,25 +28,27 @@
    <state>KY</state>
    <city>Louisville</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $45,000 military retirement + $35,000 W2 = $80,000 -->
-   <!-- AGI: $80,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $65,000 -->
-   <!-- Federal Tax: ~$8,700 -->
-   <!-- KY: Flat 4.0% tax rate (2025) -->
-   <!-- KY Military Retirement Exemption: $31,110 -->
-   <!-- KY Taxable Retirement: $45,000 - $31,110 = $13,890 -->
-   <!-- KY Taxable Income: $13,890 + $35,000 = $48,890 -->
-   <!-- KY Tax: $48,890 * 0.04 = $1,956 -->
-   <!-- Total Tax: $10,656 -->
-   <!-- Withholding: $11,500 -->
-   <!-- Refund: $844 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $35,000 + line 5b military retired pay $45,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $80,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $64,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 15,775 = 5,578.50 + 3,470.50 = $9,049.00.
+        Withholding $11,500 less tax $9,049.00 = refund $2,451.00. -->
+   <!-- Kentucky (2025 Form 740): line 5 federal AGI $80,000; Schedule M line 9 pension income
+        exclusion = lesser of $45,000 and $31,110 = $31,110; line 9 Kentucky AGI $48,890; line 10
+        standard deduction $3,270; line 11 taxable income $45,620; line 12 tax 4% = $1,824.80,
+        whole dollars on the form: $1,825. Family size tax credit $0 (income above 133% of the
+        poverty guideline); personal tax credit $0 (not 65, blind or National Guard). Kentucky tax $1,825. -->
+   <!-- expected_state_tax was $1,956, 4% of $48,890 with the $3,270 standard deduction left out (#1330). -->
    <expected_agi>80000</expected_agi>
-   <expected_taxable_income>65000</expected_taxable_income>
-   <expected_total_tax>10656</expected_total_tax>
-   <expected_state_tax>1956</expected_state_tax>
-   <expected_refund>844</expected_refund>
+   <expected_taxable_income>64250</expected_taxable_income>
+   <expected_total_tax>9049</expected_total_tax>
+   <expected_state_tax>1825</expected_state_tax>
+   <expected_refund>2451</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>

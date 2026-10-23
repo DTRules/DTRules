@@ -67,6 +67,12 @@
 - 2026-09-13 — delete table `No_State_Income_Tax` from `TaxReturn_dt.xml` — "Only existed as the fallback for the parked non-resident dispatch (#1177)"
 - 2026-09-25 — delete table `Filter_Rental_Property` from `TaxReturn_dt.xml` — "Unreached, and redundant: Process_Rental_Income filters rentals in its own context (#1207)"
 - 2026-10-22 — renamed table MA_Nonresident_Exemption_Ratio -> MA_Exemption_Ratio
+- 2026-10-22 — renamed table UT_Military_Retirement_Exclusion -> UT_Military_Retirement_Credit
+- 2026-10-23 — note — "Military subtractions apply to full-year resident entries only (result.state_calc_resident_status is full_year): VA_Military_Benefits_Subtraction, GA_Retirement_Income_Exclusion, ky_military_retirement_exemption, ca_military_retirement_exemption, co_military_retirement_exemption, ID_Retirement_Benefits_Deduction, MD_Military_Retirement_Subtraction, NM_Military_Retirement_Exclusion, DE_Military_Pension_Exclusion and UT_Military_Retirement_Credit gained the condition and an explicit no-op column; il_tax, NY_Tax, OH_Tax and VT_Tax set their exclusion inside an if on it. A nonresident or part-year entry's income is built from the income entities, which the pension is not, and 4 U.S.C. 114 bars taxing a nonresident's retirement income (#1330 review)."
+- 2026-10-23 — note — "ID_Tax actions 1-3 now compute Form 39R line 8 in the form's order: 8d = cap less Social Security, 8f = the smaller of 8d and the qualifying benefits (#1330 review)."
+
+
+
 
 
 

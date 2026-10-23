@@ -7,7 +7,7 @@
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>co_military_retirement_exemption</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -16,30 +16,106 @@
 <COMMENTS>Colorado military retirement exemption (2025). Age-based: Under 55 = $15k, 55-64 = $20k, 65+ = $24k. Honors MSRRA and SCRA. Source: MOAA State Report Card, Colorado DOR. Skeleton table: conditions populated as real EL but actions block intentionally empty pending authorship — exemption assignment to result.co_military_retirement_exemption not yet wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>5790</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Age 55 to 64</condition_comment>
-<condition_dsl>taxpayer.age &gt;= 55 and taxpayer.age &lt;= 64</condition_dsl>
+<condition_comment>The taxpayer has taxable military retirement benefits (Form 1099-R)</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
 <condition_postfix>
-taxpayer.age 55 &gt;= { pop taxpayer.age 64 &lt;= } over if
+taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>-</columns>
+<columns>YYYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Age 65 or older</condition_comment>
-<condition_dsl>taxpayer.age &gt;= 65</condition_dsl>
+<condition_comment>54 or younger on December 31 of the tax year</condition_comment>
+<condition_dsl>job.tax_year - (get yearof taxpayer.date_of_birth) &lt; 55</condition_dsl>
 <condition_postfix>
-taxpayer.age 65 &gt;=
+job.tax_year taxpayer.date_of_birth yearof - 55 &lt;
 </condition_postfix>
-<columns>-</columns>
+<columns>YNN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>65 or older on December 31 of the tax year</condition_comment>
+<condition_dsl>job.tax_year - (get yearof taxpayer.date_of_birth) &gt;= 65</condition_dsl>
+<condition_postfix>
+job.tax_year taxpayer.date_of_birth yearof - 65 &gt;=
+</condition_postfix>
+<columns>-NY--</columns>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YYY-N</columns>
 </condition_details>
 </conditions>
-<actions></actions>
-<policy_statements></policy_statements>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>DR 0104AD line 7: the lesser of $15,000 and the taxable military retirement benefits (C.R.S. 39-22-104(4)(y))</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and co_military_exemption_under_55 to result.co_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay co_military_exemption_under_55 fmin cvd result.co_military_retirement_exemption f+ /result.co_military_retirement_exemption xdef
+</action_postfix>
+<columns>X----</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>DR 0104AD line 4, age 55-64: pension and annuity subtraction, the lesser of $20,000 and the pension income (C.R.S. 39-22-104(4)(f))</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and co_pension_subtraction_55_to_64 to result.co_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay co_pension_subtraction_55_to_64 fmin cvd result.co_military_retirement_exemption f+ /result.co_military_retirement_exemption xdef
+</action_postfix>
+<columns>-X---</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>DR 0104AD line 4, age 65 and over: the lesser of $24,000 and the pension income</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and co_pension_subtraction_65_plus to result.co_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay co_pension_subtraction_65_plus fmin cvd result.co_military_retirement_exemption f+ /result.co_military_retirement_exemption xdef
+</action_postfix>
+<columns>--X--</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Under 55: military retirement benefits subtraction, DR 0104AD line 7, lesser of $15,000 and the benefits (2025 104 Book p. 19; C.R.S. 39-22-104(4)(y)).</policy_description>
+<policy_statement_postfix>"Under 55: military retirement benefits subtraction, DR 0104AD line 7, lesser of $15,000 and the benefits (2025 104 Book p. 19; C.R.S. 39-22-104(4)(y))."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>55 to 64: a retired servicemember uses the pension and annuity subtraction, DR 0104AD line 4, lesser of $20,000 and the pension (Income Tax Topics: Military Servicemembers, Feb 2025). The $20,000 is shared with other pension income and reduced by Social Security on line 3; only the military pay is counted here.</policy_description>
+<policy_statement_postfix>"55 to 64: a retired servicemember uses the pension and annuity subtraction, DR 0104AD line 4, lesser of $20,000 and the pension (Income Tax Topics: Military Servicemembers, Feb 2025). The $20,000 is shared with other pension income and reduced by Social Security on line 3; only the military pay is counted here."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>65 and over: pension and annuity subtraction, DR 0104AD line 4, lesser of $24,000 and the pension, with the same sharing caveat.</policy_description>
+<policy_statement_postfix>"65 and over: pension and annuity subtraction, DR 0104AD line 4, lesser of $24,000 and the pension, with the same sharing caveat."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>No military retirement benefits for this taxpayer.</policy_description>
+<policy_statement_postfix>"No military retirement benefits for this taxpayer."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 5791: co_pension_subtraction -->
@@ -48,7 +124,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>co_pension_subtraction</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -80,7 +156,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>CO_Tax</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -92,9 +168,9 @@ taxpayer.age 65 &gt;=
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.co_tax = 0; set result.co_taxable_income = 0; add "  Colorado Tax Calculation (Form DR 0104) - flat 4.40%" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.co_tax = 0; set result.co_taxable_income = 0; add "  Colorado Tax Calculation (Form DR 0104) - flat 4.40% of Colorado taxable income" to job.audit_trail; set result.co_military_retirement_exemption = 0.0; perform co_military_retirement_exemption; add "  CO DR 0104AD military retirement / pension subtraction: $" + result.co_military_retirement_exemption to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.co_tax xdef 0 cvd /result.co_taxable_income xdef "  Colorado Tax Calculation (Form DR 0104) - flat 4.40%" job.audit_trail swap addto
+0 cvd /result.co_tax xdef 0 cvd /result.co_taxable_income xdef "  Colorado Tax Calculation (Form DR 0104) - flat 4.40% of Colorado taxable income" job.audit_trail swap addto 0.0 cvd /result.co_military_retirement_exemption xdef /co_military_retirement_exemption performtable "  CO DR 0104AD military retirement / pension subtraction: $" result.co_military_retirement_exemption strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -112,10 +188,10 @@ true
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>CO tax = AGI x 4.40%</action_comment>
-<action_dsl>set result.co_taxable_income = the maximum of result.state_calc_agi and 0.0; set result.co_tax = result.co_taxable_income * co_tax_rate; add "  CO taxable income: $" + result.co_taxable_income to job.audit_trail; add "  CO state tax (4.40%): $" + result.co_tax to job.audit_trail</action_dsl>
+<action_comment>DR 0104 line 1 is federal taxable income (AGI less the federal deductions), line 11 subtracts DR 0104AD (military retirement or pension subtraction), line 13 tax 4.4%</action_comment>
+<action_dsl>set result.co_taxable_income = the maximum of (result.state_calc_agi - (result.state_calc_total_agi - result.taxable_income) - result.co_military_retirement_exemption) and 0.0; set result.co_tax = result.co_taxable_income * co_tax_rate; add "  CO taxable income: $" + result.co_taxable_income to job.audit_trail; add "  CO state tax (4.40%): $" + result.co_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef "  CO taxable income: $" result.co_taxable_income strconcat job.audit_trail swap addto "  CO state tax (4.40%): $" result.co_tax strconcat job.audit_trail swap addto
+result.state_calc_agi result.state_calc_total_agi result.taxable_income f- f- result.co_military_retirement_exemption f- 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef "  CO taxable income: $" result.co_taxable_income strconcat job.audit_trail swap addto "  CO state tax (4.40%): $" result.co_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -131,8 +207,8 @@ result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>CO flat tax: 4.40% x AGI per C.R.S. § 39-22-104</policy_description>
-<policy_statement_postfix>"CO flat tax: 4.40% x AGI per C.R.S. § 39-22-104"</policy_statement_postfix>
+<policy_description>Colorado flat 4.4% (2025 104 Book) of Colorado taxable income: federal taxable income (DR 0104 line 1, so the federal deduction is already out) less the DR 0104AD subtraction for military retired pay (line 7 under 55; pension and annuity subtraction line 4 at 55 and over). For a non-resident entry the sourced income less the federal deductions stands in for the DR 0104PN apportionment.</policy_description>
+<policy_statement_postfix>"Colorado flat 4.4% (2025 104 Book) of Colorado taxable income: federal taxable income (DR 0104 line 1, so the federal deduction is already out) less the DR 0104AD subtraction for military retired pay (line 7 under 55; pension and annuity subtraction line 4 at 55 and over). For a non-resident entry the sourced income less the federal deductions stands in for the DR 0104PN apportionment."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -143,7 +219,7 @@ result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>CO_EITC</table_name>
 <xls_file>CO.xlsx</xls_file>

@@ -74,14 +74,9 @@
 
    <!-- Incomes -->
    <incomes>
-      <income id="1">
-         <id>1</id>
-         <taxpayer_id>1</taxpayer_id>
-         <type>retirement_income</type>
-         <gross_amount>42000</gross_amount>
-         <withholding>4800</withholding>
-         <description>Military retirement pension (Form 1099-R)</description>
-      </income>
+      <!-- The military pension is the taxpayer's military_retirement_pay above, which the rules
+           read since #1330 (Process_Military_Retirement). It was also listed here as a
+           retirement_income entity; stated twice it was counted twice (#1330 review). -->
       <income id="2">
          <id>2</id>
          <taxpayer_id>1</taxpayer_id>

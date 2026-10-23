@@ -7,10 +7,15 @@
 		<source>
 			<relative_path>ID.xlsx</relative_path>
 			<file_name>ID.xlsx</file_name>
-			<sheet_number>2</sheet_number>
+			<sheet_number>3</sheet_number>
 		</source>
-		<field name="id_military_age_requirement" type="double" subtype="" access="r" input="" default_value="62.0" comment="ID minimum age for full military retirement exemption (62)"></field>
-		<field name="id_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID military retirement exemption (computed - full if qualified)"></field>
+		<field name="id_military_age_requirement" type="double" subtype="" access="r" input="" default_value="62.0" comment="Idaho retirement benefits deduction for retired service members: age 62 or older qualifies outright; under 62 qualifies only when employed during the year with enough earned income to have to file a federal return; disabled qualifies at any age (Idaho Code 63-3022A(1)(b); 2025 Form 39R instructions, line 8e). Military retired pay is not exempt without one of these tests."></field>
+		<field name="id_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="Idaho retirement benefits deduction for military retired pay (computed): the qualifying pay (ID_Retirement_Benefits_Deduction, per taxpayer), capped at the filing-status maximum less Social Security received (Form 39R Part B line 8f -&gt; line 24 -&gt; Form 40 line 10) (#1330)."></field>
 		<field name="id_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID taxable military retirement after exemption (computed)"></field>
+		<field name="id_retirement_benefits_cap_joint" type="double" subtype="" access="r" input="" default_value="72324.0" comment="Idaho retirement benefits deduction maximum, married filing jointly: $72,324 for 2025 (Form 39R Part B line 8a; 2025 Form 39R instructions p. 31). Line 8d is this cap less Railroad Retirement and Social Security received; line 8f is the smaller of 8d and the qualifying benefits."></field>
+		<field name="id_retirement_benefits_cap_single" type="double" subtype="" access="r" input="" default_value="48216.0" comment="Idaho retirement benefits deduction maximum, single: $48,216 for 2025 (Form 39R Part B line 8a; Idaho Code 63-3022A; 2025 Form 39R instructions p. 31). Line 8d is this cap less Railroad Retirement (8b) and Social Security (8c) benefits received; line 8f, the deduction, is the smaller of 8d and the qualifying benefits (8e)."></field>
+		<field name="id_tax_rate" type="double" subtype="" access="r" input="" default_value="0.053" comment="Idaho individual income tax rate 5.3% effective January 1, 2025 (HB 40; 2025 Form 40 instructions, line 20 worksheet step 4). Was 5.695% for 2024."></field>
+		<field name="id_zero_bracket_joint" type="double" subtype="" access="r" input="" default_value="9622.0" comment="Idaho taxable income not taxed, married filing jointly, surviving spouse or head of household: $9,622 for 2025, twice the single figure as in prior years (2024: $4,673 single, $9,346 joint). The 2025 joint figure was not read from the Form 40 worksheet directly; confirm when a joint Idaho scenario is written."></field>
+		<field name="id_zero_bracket_single" type="double" subtype="" access="r" input="" default_value="4811.0" comment="Idaho taxable income not taxed, single or married filing separately: $4,811 for 2025 (Form 40 instructions, line 20 worksheet step 2)."></field>
 	</entity>
 </entity_data_dictionary>

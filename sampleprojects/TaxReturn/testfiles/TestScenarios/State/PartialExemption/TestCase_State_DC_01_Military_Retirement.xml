@@ -15,9 +15,11 @@
       limitations under the License.
    </copyright>
 
-   <!-- District of Columbia Military Retirement Test Case -->
-   <!-- Test Case DC-Military-01: Military retirement (100% exempt per DC rules) -->
-   <!-- DC provides full exemption for military retirement income -->
+   <!-- District of Columbia military retirement test case (DC-MIL-01). -->
+   <!-- DC has no exclusion for military retired pay in 2025: the $3,000 exclusion for taxpayers 62 or -->
+   <!-- older in D.C. Code 47-1803.02(a)(2)(N)(i) applies only to taxable years beginning before -->
+   <!-- January 1, 2015 (D.C. Law 20-155), and the 2025 D-40 and Schedule I have no military line. -->
+   <!-- Only survivor benefits (D-40 line 12, age 62 or older) remain. -->
 
    <id>DC-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -25,24 +27,30 @@
    <state>DC</state>
    <city>Washington</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $42,000 military retirement + $55,000 W2 = $97,000 -->
-   <!-- AGI: $97,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $82,000 -->
-   <!-- Federal Tax: ~$11,800 -->
-   <!-- DC: Progressive tax (up to 10.75%) -->
-   <!-- DC Military Retirement Exclusion: $42,000 (100% exempt) -->
-   <!-- DC Taxable Income: $55,000 (only W2 wages) -->
-   <!-- DC Tax (progressive brackets): ~$3,900 -->
-   <!-- Total Tax: $15,700 -->
-   <!-- Withholding: $17,000 -->
-   <!-- Refund: $1,300 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $55,000 + line 5b military retired pay $42,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $97,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $81,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 32,775 = 5,578.50 + 7,210.50 = $12,789.00.
+        Withholding $17,000 less tax $12,789.00 = refund $4,211.00. -->
+   <!-- District of Columbia (2025 Form D-40): line 4 federal AGI $97,000; lines 8 to 15 subtractions
+        $0; line 16 DC AGI $97,000; line 18 standard deduction $15,000 (DC's own 2025 figure, not the
+        federal $15,750); line 19 taxable income $82,000; line 20 tax from the 2025 tax table, row
+        $82,000 to $82,049: $5,371 (Calculation I: 3,500 + 8.5% x 22,000 = $5,370.00). No automatic
+        credits. DC tax $5,371.
+        DC_Tax is a #1200 placeholder (10.75% of AGI less $15,000) and computes $8,815; the state
+        check fails until #1200 rebuilds the District. -->
+   <!-- expected_state_tax was $3,900, an approximate tax on wages alone under a 100% exemption that
+        was repealed for tax years from 2015 (#1330). -->
    <expected_agi>97000</expected_agi>
-   <expected_taxable_income>82000</expected_taxable_income>
-   <expected_total_tax>15700</expected_total_tax>
-   <expected_state_tax>3900</expected_state_tax>
-   <expected_refund>1300</expected_refund>
+   <expected_taxable_income>81250</expected_taxable_income>
+   <expected_total_tax>12789</expected_total_tax>
+   <expected_state_tax>5371</expected_state_tax>
+   <expected_refund>4211</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>

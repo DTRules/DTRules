@@ -20,5 +20,6 @@
 		<field name="oh_exemption_magi_threshold_mid" type="double" subtype="" access="r" input="" default_value="80000.0" comment="OH MAGI threshold for mid exemption (2025)"></field>
 		<field name="oh_exemption_mid" type="double" subtype="" access="r" input="" default_value="2100.0" comment="OH personal exemption if MAGI between $40,000 and $80,000 (2025)"></field>
 		<field name="oh_exemption_threshold" type="double" subtype="" access="r" input="" default_value="26050.0" comment="OH tax exemption threshold - first $26,050 is tax-free (2025)"></field>
+		<field name="oh_military_retirement_deduction" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Ohio Schedule of Adjustments line 34, uniformed services retirement income: military retired pay included in federal AGI is deducted in full (R.C. 5747.01(A)(23); 2025 IT 1040 booklet p. 24). Computed per return from result.military_retirement_income (#1330)."></field>
 	</entity>
 </entity_data_dictionary>

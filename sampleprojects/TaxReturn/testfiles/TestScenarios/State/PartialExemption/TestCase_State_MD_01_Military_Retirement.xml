@@ -15,12 +15,12 @@
       limitations under the License.
    </copyright>
 
-   <!-- Maryland Military Retirement Test Case -->
-   <!-- Test Case MD-Military-01: Military retiree age 50 ($12,500 exemption under age 55) -->
-   <!-- MD provides age-based military retirement exemptions: -->
-   <!-- Under age 55: First $12,500 exempt -->
-   <!-- Age 55+: First $20,000 exempt -->
-   <!-- This test uses age 50 (born 1975) = $12,500 exemption -->
+   <!-- Maryland military retirement test case (MD-MIL-01). -->
+   <!-- Form 502SU code u: an individual at least 55 on the last day of the year subtracts up to -->
+   <!-- $20,000 of military retirement income, under 55 up to $12,500 (2025 Resident Booklet, -->
+   <!-- Instruction 13; Tax-General 10-207(q)). The 2025 standard deduction is a flat $3,350 single -->
+   <!-- (BRFA 2025) and the personal exemption $3,200 with federal AGI of $100,000 or less. The county -->
+   <!-- income tax (Form 502 lines 28 to 33) is not state tax and is not modelled. -->
 
    <id>MD-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -28,25 +28,30 @@
    <state>MD</state>
    <city>Baltimore</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $30,000 military retirement + $50,000 W2 = $80,000 -->
-   <!-- AGI: $80,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $65,000 -->
-   <!-- Federal Tax: ~$8,700 -->
-   <!-- MD: Progressive tax (up to 5.75%) -->
-   <!-- MD Military Retirement Exemption: $12,500 (under age 55) -->
-   <!-- MD Taxable Retirement: $30,000 - $12,500 = $17,500 -->
-   <!-- MD Taxable Income: $17,500 + $50,000 = $67,500 -->
-   <!-- MD Tax (progressive brackets): ~$3,900 -->
-   <!-- Total Tax: $12,600 -->
-   <!-- Withholding: $13,500 -->
-   <!-- Refund: $900 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $50,000 + line 5b military retired pay $30,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $80,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $64,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 15,775 = 5,578.50 + 3,470.50 = $9,049.00.
+        Withholding $13,500 less tax $9,049.00 = refund $4,451.00. -->
+   <!-- Maryland (2025 Form 502): line 1 federal AGI $80,000; Form 502SU code u, under 55 (born
+        2/18/1975) = lesser of $30,000 and $12,500 = $12,500; line 16 Maryland AGI $67,500; line 17
+        standard deduction $3,350; line 19 exemption $3,200; line 20 taxable net income $60,950; line 21
+        state tax from the 2025 tax table, row $60,950 to $61,000: $2,844 (rate schedule 90 + 4.75% x
+        57,950 = $2,842.63). No state credits. Maryland state tax $2,844 (the 3.2% county tax, $1,950.40
+        in Baltimore or Montgomery County, is separate).
+        MD_Tax is a #1200 placeholder (5.75% of AGI less the subtraction and $2,550) and computes
+        $3,734.63; the state check fails until #1200 rebuilds Maryland. -->
+   <!-- expected_state_tax was an approximate $3,900 (#1330). -->
    <expected_agi>80000</expected_agi>
-   <expected_taxable_income>65000</expected_taxable_income>
-   <expected_total_tax>12600</expected_total_tax>
-   <expected_state_tax>3900</expected_state_tax>
-   <expected_refund>900</expected_refund>
+   <expected_taxable_income>64250</expected_taxable_income>
+   <expected_total_tax>9049</expected_total_tax>
+   <expected_state_tax>2844</expected_state_tax>
+   <expected_refund>4451</expected_refund>
 
    <!-- Retired Military Taxpayer (Age 50) -->
    <taxpayers>

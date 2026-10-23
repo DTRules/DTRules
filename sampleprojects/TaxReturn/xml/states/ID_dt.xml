@@ -7,7 +7,7 @@
 <relative_path>ID.xlsx</relative_path>
 <file_name>ID.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:e64a118de74e64d4aa50174c75b8ddaa7f942617808b4e7a971bcd69a16b6e47</source_hash>
+<source_hash>sha256:24243d216e06ef52dbb282ce6a27c369cf62b320e08aa4ced3c52622ce7c87c8</source_hash>
 </source>
 <table_name>ID_Tax</table_name>
 <xls_file>ID.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Idaho Tax Calculation (top marginal 5.695%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; set result.id_military_retirement_exemption = 0.0; perform ID_Retirement_Benefits_Deduction; add "  Idaho Tax Calculation (Form 40, 2025) - 5.3% of taxable income above the zero bracket" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Idaho Tax Calculation (top marginal 5.695%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef 0.0 cvd /result.id_military_retirement_exemption xdef /ID_Retirement_Benefits_Deduction performtable "  Idaho Tax Calculation (Form 40, 2025) - 5.3% of taxable income above the zero bracket" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -48,44 +48,139 @@ job.filing_status "HOH" streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>MFJ/QSS: $30,000 std ded, 5.695%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 30000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.05695</action_dsl>
+<action_comment>MFJ/QSS: Form 39R line 8d = the $72,324 cap less Social Security; 8f = the smaller of 8d and the benefits; Form 40 line 16 federal deduction; line 20 worksheet: subtract $9,622, multiply by 5.3%</action_comment>
+<action_dsl>set result.id_military_retirement_exemption = the minimum of result.id_military_retirement_exemption and (the maximum of (id_retirement_benefits_cap_joint - result.total_social_security) and 0.0); set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.id_military_retirement_exemption - result.total_deduction) and 0.0; set result.computed_state_tax = (the maximum of (result.computed_state_taxable_income - id_zero_bracket_joint) and 0.0) * id_tax_rate; add "  ID Form 39R line 8 retirement benefits deduction $" + result.id_military_retirement_exemption + "; taxable income $" + result.computed_state_taxable_income + "; tax $" + result.computed_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 30000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05695 fmul cvd /result.computed_state_tax xdef
+result.id_military_retirement_exemption id_retirement_benefits_cap_joint result.total_social_security f- 0.0 fmax fmin cvd /result.id_military_retirement_exemption xdef result.state_calc_agi result.id_military_retirement_exemption f- result.total_deduction f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income id_zero_bracket_joint f- 0.0 fmax id_tax_rate fmul cvd /result.computed_state_tax xdef "  ID Form 39R line 8 retirement benefits deduction $" result.id_military_retirement_exemption strconcat "; taxable income $" strconcat result.computed_state_taxable_income strconcat "; tax $" strconcat result.computed_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>HOH: $22,500 std ded, 5.695%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 22500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.05695</action_dsl>
+<action_comment>HOH: Form 39R line 8d = the single $48,216 cap less Social Security; 8f = the smaller of 8d and the benefits; the head-of-household zero bracket is the joint figure, $9,622; 5.3%</action_comment>
+<action_dsl>set result.id_military_retirement_exemption = the minimum of result.id_military_retirement_exemption and (the maximum of (id_retirement_benefits_cap_single - result.total_social_security) and 0.0); set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.id_military_retirement_exemption - result.total_deduction) and 0.0; set result.computed_state_tax = (the maximum of (result.computed_state_taxable_income - id_zero_bracket_joint) and 0.0) * id_tax_rate; add "  ID Form 39R line 8 retirement benefits deduction $" + result.id_military_retirement_exemption + "; taxable income $" + result.computed_state_taxable_income + "; tax $" + result.computed_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 22500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05695 fmul cvd /result.computed_state_tax xdef
+result.id_military_retirement_exemption id_retirement_benefits_cap_single result.total_social_security f- 0.0 fmax fmin cvd /result.id_military_retirement_exemption xdef result.state_calc_agi result.id_military_retirement_exemption f- result.total_deduction f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income id_zero_bracket_joint f- 0.0 fmax id_tax_rate fmul cvd /result.computed_state_tax xdef "  ID Form 39R line 8 retirement benefits deduction $" result.id_military_retirement_exemption strconcat "; taxable income $" strconcat result.computed_state_taxable_income strconcat "; tax $" strconcat result.computed_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Default (Single/MFS): $15,000 std ded, 5.695%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 15000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.05695</action_dsl>
+<action_comment>Single/MFS: Form 39R line 8d = the $48,216 cap less Social Security; 8f = the smaller of 8d and the benefits; Form 40 line 16 federal deduction; line 20 worksheet: subtract $4,811, multiply by 5.3%</action_comment>
+<action_dsl>set result.id_military_retirement_exemption = the minimum of result.id_military_retirement_exemption and (the maximum of (id_retirement_benefits_cap_single - result.total_social_security) and 0.0); set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.id_military_retirement_exemption - result.total_deduction) and 0.0; set result.computed_state_tax = (the maximum of (result.computed_state_taxable_income - id_zero_bracket_single) and 0.0) * id_tax_rate; add "  ID Form 39R line 8 retirement benefits deduction $" + result.id_military_retirement_exemption + "; taxable income $" + result.computed_state_taxable_income + "; tax $" + result.computed_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 15000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05695 fmul cvd /result.computed_state_tax xdef
+result.id_military_retirement_exemption id_retirement_benefits_cap_single result.total_social_security f- 0.0 fmax fmin cvd /result.id_military_retirement_exemption xdef result.state_calc_agi result.id_military_retirement_exemption f- result.total_deduction f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income id_zero_bracket_single f- 0.0 fmax id_tax_rate fmul cvd /result.computed_state_tax xdef "  ID Form 39R line 8 retirement benefits deduction $" result.id_military_retirement_exemption strconcat "; taxable income $" strconcat result.computed_state_taxable_income strconcat "; tax $" strconcat result.computed_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>ID MFJ: 5.695% x max(AGI - $30,000, 0) per Idaho Code § 63-3024</policy_description>
-<policy_statement_postfix>"ID MFJ: 5.695% x max(AGI - $30,000, 0) per Idaho Code § 63-3024"</policy_statement_postfix>
+<policy_description>Idaho MFJ/QSS (2025 Form 40): taxable income is federal AGI less Form 39R subtractions (the retirement benefits deduction for military retired pay: line 8d = the $72,324 cap less Social Security, line 8f = the smaller of 8d and the benefits) less the federal deduction (line 16); tax is 5.3% of taxable income over the $9,622 zero bracket (line 20 worksheet; HB 40).</policy_description>
+<policy_statement_postfix>"Idaho MFJ/QSS (2025 Form 40): taxable income is federal AGI less Form 39R subtractions (the retirement benefits deduction for military retired pay: line 8d = the $72,324 cap less Social Security, line 8f = the smaller of 8d and the benefits) less the federal deduction (line 16); tax is 5.3% of taxable income over the $9,622 zero bracket (line 20 worksheet; HB 40)."</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>ID HOH: 5.695% x max(AGI - $22,500, 0) per Idaho Code § 63-3024</policy_description>
-<policy_statement_postfix>"ID HOH: 5.695% x max(AGI - $22,500, 0) per Idaho Code § 63-3024"</policy_statement_postfix>
+<policy_description>Idaho HOH: as MFJ, with the single $48,216 cap on Form 39R line 8a (8d = cap less Social Security; 8f = the smaller of 8d and the benefits).</policy_description>
+<policy_statement_postfix>"Idaho HOH: as MFJ, with the single $48,216 cap on Form 39R line 8a (8d = cap less Social Security; 8f = the smaller of 8d and the benefits)."</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
-<policy_description>ID Single/MFS: 5.695% x max(AGI - $15,000, 0) per Idaho Code § 63-3024</policy_description>
-<policy_statement_postfix>"ID Single/MFS: 5.695% x max(AGI - $15,000, 0) per Idaho Code § 63-3024"</policy_statement_postfix>
+<policy_description>Idaho Single/MFS (2025 Form 40): federal AGI less the retirement benefits deduction (Form 39R Part B line 8: 8d = the $48,216 cap less Social Security, 8f = the smaller of 8d and the benefits) less the federal deduction; 5.3% of taxable income over the $4,811 zero bracket. The refundable grocery credit and the $10 permanent building fund tax are not part of the income tax figure.</policy_description>
+<policy_statement_postfix>"Idaho Single/MFS (2025 Form 40): federal AGI less the retirement benefits deduction (Form 39R Part B line 8: 8d = the $48,216 cap less Social Security, 8f = the smaller of 8d and the benefits) less the federal deduction; 5.3% of taxable income over the $4,811 zero bracket. The refundable grocery credit and the $10 permanent building fund tax are not part of the income tax figure."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 51613: ID_Retirement_Benefits_Deduction -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>ID.xlsx</relative_path>
+<file_name>ID.xlsx</file_name>
+<sheet_number>2</sheet_number>
+<source_hash>sha256:24243d216e06ef52dbb282ce6a27c369cf62b320e08aa4ced3c52622ce7c87c8</source_hash>
+</source>
+<table_name>ID_Retirement_Benefits_Deduction</table_name>
+<xls_file>ID.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>51613</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer has military retired pay (Form 39R Part B line 8e qualifying benefits)</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YYNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>62 or older qualifies outright (Idaho Code 63-3022A(1)(b)(ii))</condition_comment>
+<condition_dsl>job.tax_year - (get yearof taxpayer.date_of_birth) &gt;= 62</condition_dsl>
+<condition_postfix>
+job.tax_year taxpayer.date_of_birth yearof - 62 &gt;=
+</condition_postfix>
+<columns>YN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Under 62: qualifies when employed during the year with enough income to have to file a federal return (63-3022A(1)(b)(iii)); wages stand in for that test</condition_comment>
+<condition_dsl>taxpayer.w2_wages &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.w2_wages 0 f&gt;
+</condition_postfix>
+<columns>-Y--</columns>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YY-N</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Form 39R Part B line 8e: qualifying retirement benefits of a retired service member; capped on line 8a-8f in ID_Tax</action_comment>
+<action_dsl>add taxpayer.military_retirement_pay to result.id_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay cvd result.id_military_retirement_exemption f+ /result.id_military_retirement_exemption xdef
+</action_postfix>
+<columns>XX--</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>62 or older: the military retired pay is a qualifying retirement benefit for the Idaho retirement benefits deduction (Form 39R Part B line 8; Idaho Code 63-3022A; 2025 Form 39R instructions p. 31).</policy_description>
+<policy_statement_postfix>"62 or older: the military retired pay is a qualifying retirement benefit for the Idaho retirement benefits deduction (Form 39R Part B line 8; Idaho Code 63-3022A; 2025 Form 39R instructions p. 31)."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Under 62 and employed: the pay qualifies for the retirement benefits deduction (63-3022A(1)(b)(iii)). The disabled-at-any-age test has no input in the data model.</policy_description>
+<policy_statement_postfix>"Under 62 and employed: the pay qualifies for the retirement benefits deduction (63-3022A(1)(b)(iii)). The disabled-at-any-age test has no input in the data model."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Under 62 and not employed, or no military retired pay: no deduction.</policy_description>
+<policy_statement_postfix>"Under 62 and not employed, or no military retired pay: no deduction."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

@@ -15,15 +15,13 @@
       limitations under the License.
    </copyright>
 
-   <!-- Utah Military Retirement Test Case -->
-   <!-- Test Case UT-Military-02: Military retirement with AGI $55,000 single (partial exemption - phased out) -->
-   <!-- UT provides income-based retirement credit: -->
-   <!-- Single: AGI up to $47,500 = $10,000 exemption -->
-   <!-- Single: AGI $47,500-$67,500 = phased out (linear) -->
-   <!-- Single: AGI over $67,500 = no exemption -->
-   <!-- This test uses AGI $55,000 (in phaseout range) -->
-   <!-- Phaseout calculation: ($55,000 - $47,500) / ($67,500 - $47,500) = $7,500 / $20,000 = 37.5% phased out -->
-   <!-- Exemption: $10,000 * (1 - 0.375) = $6,250 -->
+   <!-- Utah military retirement test case (UT-MIL-02). -->
+   <!-- Utah gives no exemption for military retirement pay; the relief is the military retirement -->
+   <!-- credit, TC-40A Part 3 code AJ, a nonrefundable 4.5% of the pay included in AGI (Utah Code -->
+   <!-- 59-10-1043; 2025 TC-40 instructions p. 21-22), which combines with the taxpayer tax credit -->
+   <!-- (TC-40 lines 11 to 20: 6% of the federal deduction plus $2,111 per dependent, less 1.3% of -->
+   <!-- taxable income over $18,213 single). The former heading's $10,000 exemption with AGI caps is -->
+   <!-- not Utah law. -->
 
    <id>UT-MIL-02</id>
    <tax_year>2025</tax_year>
@@ -31,25 +29,28 @@
    <state>UT</state>
    <city>Provo</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $28,000 military retirement + $27,000 W2 = $55,000 -->
-   <!-- AGI: $55,000 (in phaseout range) -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $40,000 -->
-   <!-- Federal Tax: ~$4,650 -->
-   <!-- UT: Flat 4.55% tax rate (2025) -->
-   <!-- UT Military Retirement Exemption: $6,250 (partial - phased out) -->
-   <!-- UT Taxable Retirement: $28,000 - $6,250 = $21,750 -->
-   <!-- UT Taxable Income: $21,750 + $27,000 = $48,750 -->
-   <!-- UT Tax: $48,750 * 0.0455 = $2,218 -->
-   <!-- Total Tax: $6,868 -->
-   <!-- Withholding: $7,500 -->
-   <!-- Refund: $632 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $27,000 + line 5b military retired pay $28,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $55,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $39,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 27,325 = $4,471.50.
+        Withholding $7,500 less tax $4,471.50 = refund $3,028.50. -->
+   <!-- Utah (2025 Form TC-40): line 9 Utah taxable income $55,000; line 10 tax 4.5% = $2,475.00;
+        line 16 6% x $15,750 = $945.00; line 19 phase-out 1.3% x ($55,000 - $18,213) = $478.23; line 20
+        taxpayer tax credit $466.77; line 22 $2,008.23; TC-40A code AJ military retirement credit
+        4.5% x $28,000 = $1,260.00; line 25 tax after nonrefundable credits $748.23 (the form rounds
+        to $748). Utah tax $748.23. -->
+   <!-- expected_state_tax was $2,218: 4.55% of AGI less a phased-out $6,250 exemption that is not Utah
+        law, with neither Utah credit (#1330). -->
    <expected_agi>55000</expected_agi>
-   <expected_taxable_income>40000</expected_taxable_income>
-   <expected_total_tax>6868</expected_total_tax>
-   <expected_state_tax>2218</expected_state_tax>
-   <expected_refund>632</expected_refund>
+   <expected_taxable_income>39250</expected_taxable_income>
+   <expected_total_tax>4471.5</expected_total_tax>
+   <expected_state_tax>748.23</expected_state_tax>
+   <expected_refund>3028.5</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>

@@ -15,9 +15,11 @@
       limitations under the License.
    </copyright>
 
-   <!-- California Military Retirement Test Case -->
-   <!-- Test Case CA-Military-01: Military retiree with AGI under $126,260 (fully exempt) -->
-   <!-- CA excludes military retirement if AGI &lt; $126,260 (2025) -->
+   <!-- California military retirement test case (CA-MIL-01). -->
+   <!-- For 2025 through 2029 California excludes up to $20,000 of federal retirement pay for -->
+   <!-- uniformed service when federal AGI is $125,000 or less ($250,000 joint): Schedule CA (540) -->
+   <!-- Part I Section A line 5b column B; R&TC 17132.9; 2025 Schedule CA instructions, which cite no bill. -->
+   <!-- The limit is a cliff, not a phase-out, and there is no age test. -->
 
    <id>CA-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -25,29 +27,38 @@
    <state>CA</state>
    <city>San Diego</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $35,000 military retirement + $45,000 W2 = $80,000 -->
-   <!-- AGI: $80,000 (no adjustments) -->
-   <!-- AGI is under $126,260 threshold, so full military retirement exclusion applies -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $65,000 -->
-   <!-- Federal Tax: ~$8,700 -->
-   <!-- CA Standard Deduction: $5,706 -->
-   <!-- CA Military Retirement Exclusion: $35,000 (full exclusion due to AGI &lt; $126,260) -->
-   <!-- CA Taxable Income: $45,000 - $5,706 = $39,294 -->
-   <!-- CA Tax Calculation (progressive brackets): -->
-   <!--   $0-$11,079 @ 1%: $110.79 -->
-   <!--   $11,079-$26,295 @ 2%: $304.32 -->
-   <!--   $26,295-$39,294 @ 4%: $520 -->
-   <!--   Total CA Tax: ~$935 -->
-   <!-- Total Tax: $9,635 -->
-   <!-- Withholding: $11,000 -->
-   <!-- Refund: $1,365 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $45,000 + line 5b military retired pay $35,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $80,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA) + $2,000 (65 or older) = $17,750;
+        senior deduction (IRC 63(f)(5), OBBBA): $6,000 less 6% of MAGI over $75,000 = $5,700.
+        Taxable income $56,550.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 8,075 = 5,578.50 + 1,776.50 = $7,355.00.
+        Withholding $11,000 less tax $7,355.00 = refund $3,645.00. -->
+   <!-- California (2025 Form 540): line 13 federal AGI $80,000; Schedule CA line 5b column B
+        exclusion = lesser of $35,000 and $20,000 = $20,000 (AGI within $125,000); line 17 CA AGI
+        $60,000; line 18 standard deduction $5,706 (Single, 2025); line 19 taxable income $54,294;
+        line 31 tax from the 2025 tax table, row $54,251 to $54,350, Single: $1,793 (rate schedule
+        1,022.01 + 6% x 12,842 = $1,792.53); line 7 personal exemption credit $153; line 9 senior
+        exemption credit $153 (65 on 5/10/2025); line 33 tax less exemption credits $1,793 - $306 =
+        $1,487. California tax $1,487.
+        CA_Tax carries 2023 brackets and deduction labelled 2025, omits the exemption credits, and
+        its bracket arithmetic multiplies the wrong operand, so it computes $54,637 on this return;
+        the state check fails until #1200 rebuilds California. -->
+   <!-- expected_state_tax was $935, a full exclusion under a $126,260 AGI test that is not California
+        law. is_senior was false although the taxpayer, born 5/10/1960, is 65 in 2025; it is
+        now true. The rules compute the OBBBA senior deduction above the line and drop it
+        entirely at $75,000 of gross income (Calculate_Senior_Deduction) instead of reducing
+        it by 6% of the excess, so the federal taxable income check fails until that is fixed
+        (see SPEC 2.9) (#1330). -->
    <expected_agi>80000</expected_agi>
-   <expected_taxable_income>65000</expected_taxable_income>
-   <expected_total_tax>9635</expected_total_tax>
-   <expected_state_tax>935</expected_state_tax>
-   <expected_refund>1365</expected_refund>
+   <expected_taxable_income>56550</expected_taxable_income>
+   <expected_total_tax>7355</expected_total_tax>
+   <expected_state_tax>1487</expected_state_tax>
+   <expected_refund>3645</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>
@@ -63,7 +74,7 @@
          <w2_wages>45000</w2_wages>
          <w2_withholding>11000</w2_withholding>
          <military_retirement_pay>35000</military_retirement_pay>
-         <is_senior>false</is_senior>
+         <is_senior>true</is_senior>
          <se_gross_income>0</se_gross_income>
          <estimated_payments>0</estimated_payments>
       </taxpayer>

@@ -15,10 +15,12 @@
       limitations under the License.
    </copyright>
 
-   <!-- Oregon Military Retirement Test Case -->
-   <!-- Test Case OR-Military-01: Service before Oct 1, 1991 (fully exempt) -->
-   <!-- OR provides full exemption for military service before Oct 1, 1991 -->
-   <!-- This taxpayer served 1971-1991 (all service before cutoff date) -->
+   <!-- Oregon military retirement test case (OR-MIL-01). -->
+   <!-- Oregon has no military retirement subtraction for 2025. Military retired pay is a federal -->
+   <!-- pension: Schedule OR-ASC code 307 subtracts only the share earned by service or points before -->
+   <!-- October 1, 1991, months before over total months (ORS 316.680(1)(e); 2025 Publication OR-17 -->
+   <!-- p. 73). The retiree's service dates are not inputs of this scenario (the former heading said -->
+   <!-- 1971 to 1991), so no subtraction can be worked; see SPEC 2.9 for the missing inputs. -->
 
    <id>OR-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -26,26 +28,36 @@
    <state>OR</state>
    <city>Portland</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $40,000 military retirement + $35,000 W2 = $75,000 -->
-   <!-- AGI: $75,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $60,000 -->
-   <!-- Federal Tax: ~$7,900 -->
-   <!-- OR: Progressive tax (4.75% to 9.9%) -->
-   <!-- OR Standard Deduction: $2,745 (single) -->
-   <!-- OR Personal Exemption: $239 -->
-   <!-- OR Military Retirement Exemption: $40,000 (100% - all service before 1991) -->
-   <!-- OR Taxable Income: $35,000 - $2,745 - $239 = $32,016 -->
-   <!-- OR Tax (progressive brackets): ~$2,400 -->
-   <!-- Total Tax: $10,300 -->
-   <!-- Withholding: $11,000 -->
-   <!-- Refund: $700 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $35,000 + line 5b military retired pay $40,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $75,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA) + $2,000 (65 or older) = $17,750;
+        senior deduction (IRC 63(f)(5), OBBBA): $6,000 less 6% of MAGI over $75,000 = $6,000.
+        Taxable income $51,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 2,775 = 5,578.50 + 610.50 = $6,189.00.
+        Withholding $11,000 less tax $6,189.00 = refund $4,811.00. -->
+   <!-- Oregon (2025 Form OR-40): line 7 federal AGI $75,000; line 10 federal tax subtraction = lesser
+        of the federal tax $6,189 and the $8,500 cap = $6,189; line 13 subtractions $0 (no code 307
+        without service dates); line 15 $68,811; line 17 standard deduction $2,835 + $1,200 (65 or
+        older) = $4,035; line 19 taxable income $64,776; line 20 tax (rate chart S, $50,000 or more):
+        4,065 + 8.75% x 14,776 = $5,357.90, whole dollars $5,358; line 25 exemption credit $256
+        (federal AGI $100,000 or less); line 27 retirement income credit $0 (household income over
+        $22,500). Line 29 Oregon tax $5,102. (With the IRS tax table's federal tax of $6,195 the
+        form gives $5,101; the check allows $1.)
+        OR_Tax is a #1200 placeholder (9.9% of AGI less $2,745) and computes $7,153.25; the state
+        check fails until #1200 rebuilds Oregon. -->
+   <!-- expected_state_tax was an approximate $2,400 after a full exemption of the pay. The rules compute
+        the OBBBA senior deduction above the line and drop it entirely at $75,000 of gross
+        income (Calculate_Senior_Deduction) where the law reduces it by 6% of the excess, so
+        the federal taxable income check fails until that is fixed (see SPEC 2.9) (#1330). -->
    <expected_agi>75000</expected_agi>
-   <expected_taxable_income>60000</expected_taxable_income>
-   <expected_total_tax>10300</expected_total_tax>
-   <expected_state_tax>2400</expected_state_tax>
-   <expected_refund>700</expected_refund>
+   <expected_taxable_income>51250</expected_taxable_income>
+   <expected_total_tax>6189</expected_total_tax>
+   <expected_state_tax>5102</expected_state_tax>
+   <expected_refund>4811</expected_refund>
 
    <!-- Retired Military Taxpayer (Served 1971-1991, all before cutoff) -->
    <taxpayers>

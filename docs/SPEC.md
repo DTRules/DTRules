@@ -578,18 +578,105 @@ load-bearing enough to record:
   states (AR, LA, NM, OK) to the exact figure under `-short`. Most state
   tables are still
   placeholders (the top rate on AGI less a deduction), so a scenario
-  reconciled to its state's form fails until #1200 rebuilds that state. The
-  20 `State/FullExemption` and `State/PartialExemption` military-retirement
-  scenarios carry an `expected_state_tax` that is not yet reconciled:
-  `military_retirement_pay` is not in the mapping, and they fail on federal
-  figures first (#1330).
+  reconciled to its state's form fails until #1200 rebuilds that state.
+- **Military retired pay reaches the rules, and each state subtracts it as
+  its 2025 form does (#1330).** `taxpayer.military_retirement_pay` is in
+  `TaxReturn_map.xml`; `Process_Military_Retirement` sums it into
+  `result.military_retirement_income` and `Calculate_Gross_Income` adds it to
+  gross income, as Form 1040 line 5b pension income (IRC 61(a)(10); Pub. 525).
+  Each `XX_Tax` table applies its own state's rule to the sourced AGI and
+  cites the form, per taxpayer where the cap is per taxpayer, with age as the
+  tax year less the birth year (age at 31 December):
+  - subtracted in full: IL (IL-1040 line 5; Pub. 120), NY (IT-201 line 26;
+    Tax Law 612(c)(3)(ii)), OH (Schedule of Adjustments line 34; R.C.
+    5747.01(A)(23)), VT (Schedule IN-112 line 13; Act 71 of 2025: all of it
+    at federal AGI of $125,000 or less, phased out to nothing at $175,000);
+  - capped: KY, the $31,110 pension income exclusion (Schedule M line 9; KRS
+    141.019(1)(g)); DE, $12,500 at any age (PIT-RES line 6; 30 Del. C.
+    1106(b)(3)); VA, $40,000 at any age (Schedule ADJ code 60; Va. Code
+    58.1-322.02(18)); NM, $30,000 (PIT-ADJ line 24; Section 7-2-5.13 NMSA);
+    CA, $20,000 when federal AGI is within $125,000 ($250,000 joint), a cliff
+    (Schedule CA (540) line 5b column B; R&TC 17132.9); MD, $12,500
+    under 55 and $20,000 from 55 (Form 502SU code u); CO, $15,000 under 55
+    (DR 0104AD line 7), and from 55 the pension and annuity subtraction,
+    $20,000 to 64 and $24,000 from 65 (line 4), applied to the military pay
+    alone; GA, under 62 the military exclusion of $17,500, $35,000 with
+    earned income over $17,500 (Schedule 1 line 7b), from 62 the retirement
+    income exclusion of $35,000, $65,000 from 65, counting up to $5,000 of
+    wages (line 7a); ID, the retirement benefits deduction for a retiree 62
+    or older or employed under 62, capped at $48,216 single or $72,324 joint
+    less Social Security (Form 39R Part B line 8; Idaho Code 63-3022A);
+  - a credit: UT, 4.5% of the pay (TC-40A Part 3 code AJ; Utah Code
+    59-10-1043), alongside the taxpayer tax credit;
+  - nothing: DC, whose $3,000 exclusion at 62 applied only to tax years
+    before 2015 (D.C. Law 20-155); OR, where Schedule OR-ASC code 307
+    subtracts only the share of a federal pension earned before 1 October
+    1991 and the data model has no service dates; MT, whose Form WMRE
+    subtraction needs residency and retirement dates the model does not
+    carry.
+  Every one of these subtractions applies only to a roster entry whose
+  `state_calc_resident_status` is `full_year`. A part-year or nonresident
+  entry's income is built from the income entities
+  (`Allocate_Income_By_State`), and the pension is not one, so it is never in
+  that entry's sourced income; and 4 U.S.C. 114 bars a state from taxing a
+  nonresident's retirement income at all. Subtracting it there would cut a
+  Florida resident's Virginia tax on Virginia wages from $2,386.25 to
+  $661.25 (#1334 review). `TestMilitaryRetirementNotSubtractedForNonresident`
+  runs MultiState 20 (FL, VA wages) and 21 (FL, GA wages) with and without the
+  pension and holds the nonresident entry's tax unchanged while the
+  resident's AGI moves by $30,000. The gap on the other side: a part-year
+  mover's `military_retirement_pay` is allocated to no state period, so no
+  part-year entry subtracts or taxes it. Idaho's Form 39R line 8 is computed
+  in the form's order: 8d is the cap less Social Security, 8f the smaller of
+  8d and the benefits, so $30,000 of pay with $20,000 of Social Security
+  deducts $28,216, not $10,000 (`TestIdahoRetirementBenefitsCapOrder`, ID_02).
+  Two Idaho Social Security gaps remain: Form 39R line 7, which subtracts the
+  Social Security taxed federally, is not modelled, and the federal pass puts
+  the whole benefit into AGI rather than the Form 1040 line 6b taxable part
+  (#1335), so ID_02 states the lawful AGI and fails its AGI check until then.
+  Other pension income that shares a cap (KY, CO at 55, GA at 62), SBP
+  annuities and the disabled-retiree tests (ID) are not modelled. The
+  flat-tax tables were brought to their 2025 forms where that was a constant
+  or a line: GA 5.19% (HB 111); ID 5.3%, the $15,750 federal deduction and
+  the $4,811 zero bracket (HB 40; HB 559); CO starts from federal taxable
+  income (DR 0104 line 1); UT taxes AGI with no deduction and takes the
+  taxpayer tax credit, 6% of the federal deduction plus $2,111 per dependent
+  less 1.3% of taxable income over $18,213 single, $36,426 joint and $27,320
+  head of household (TC-40 lines 11-20 and line 17). The Idaho joint zero
+  bracket ($9,622) was not read from the 2025 Form 40 worksheet and is marked
+  so in the EDD. The six MultiState CO and UT scenarios, reconciled to those
+  forms under #1317, came clean with the tables. The 20 `State/FullExemption` and `State/PartialExemption`
+  military-retirement scenarios state figures worked from their inputs and
+  the 2025 forms, with the arithmetic in each file. Eight validate cleanly
+  (IL, CO, GA, ID, KY, NM, UT_01, UT_02) and `TestMilitaryRetirementScenarios`
+  holds them within the $1 the rules allow, because the forms print whole
+  dollars and the flat-rate tables do not round. The other twelve fail only
+  their state check: nine against #1200 placeholder tables (NY, OH, DC, DE,
+  MD, MT, OR, VA, VT) and CA against `CA_Tax`, whose bracket arithmetic
+  multiplies the wrong operand and whose constants are 2023 figures labelled
+  2025. `TestMilitaryRetirementReachesRules` runs IL_01 and fails if the
+  pension stops reaching AGI.
+- **The OBBBA senior deduction is modelled as an above-the-line adjustment
+  with a cliff.** `Calculate_Senior_Deduction` gives the full $6,000 below
+  $75,000 of gross income ($150,000 joint) and nothing at or above it, and
+  `Calculate_Gross_Income` subtracts it in reaching AGI. The law (IRC
+  63(f)(5)) reduces it by 6% of MAGI over the threshold and takes it after
+  AGI. A 65-or-older return at or above the threshold (OR_01, CA_01 among
+  the military-retirement scenarios) states the lawful taxable income and
+  fails the rules' federal check until this is fixed. NC_01 and PA_01 carry
+  `dividend_income`, `interest_income` and `social_security` tags on the
+  taxpayer that the mapping does not read (interest and dividends are income
+  entities; the Social Security tag is `social_security_income`), so they
+  fail on AGI (#1330).
 - **A scenario's expected figures are worked from its own inputs and the
   year's law, never from what the rules print.** The arithmetic and its
   source go in the file (`Credits_05_QW_Widow`, the `XX_02_MFJ_Multiple`
   template). `TestTaxReturnScenarioCoverage` runs every scenario, in CI
   too, and holds the count that validates cleanly at a floor that rises as
   scenarios come clean (#1140, #1322) and fell once, 362 to 338, when #1317
-  made the check stricter. The scenarios still under it fail validation; each
+  made the check stricter; it rose 345 to 361 when #1330 mapped military
+  retired pay, brought the CO and UT tables to their forms and added two
+  nonresident military scenarios. The scenarios still under it fail validation; each
   is brought clean by fixing whatever is wrong (scenario, mapping or rule),
   never by restating the scenario to match the rules.
 - **The ScheduleH scenarios compute no Schedule H tax.** `TaxReturn_map.xml`

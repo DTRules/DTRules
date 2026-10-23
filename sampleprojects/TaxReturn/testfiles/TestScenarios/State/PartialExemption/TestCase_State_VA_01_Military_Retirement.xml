@@ -15,12 +15,10 @@
       limitations under the License.
    </copyright>
 
-   <!-- Virginia Military Retirement Test Case -->
-   <!-- Test Case VA-Military-01: Military retiree age 60+ ($10,000 exemption, increasing to $30,000) -->
-   <!-- VA provides age-based military retirement exemptions: -->
-   <!-- Age 55-59: No exemption (but can use general retirement subtraction up to $12,000) -->
-   <!-- Age 60+: Up to $10,000 subtraction (2025), increasing gradually to $30,000 by 2031 -->
-   <!-- This test uses age 62 (born 1963) = $10,000 exemption -->
+   <!-- Virginia military retirement test case (VA-MIL-01). -->
+   <!-- Military Benefits Subtraction, Schedule ADJ code 60: up to $40,000 of military retirement income -->
+   <!-- per individual for taxable year 2025 and after, any age (the age-55 test applied only to 2022 -->
+   <!-- to 2024) (Va. Code 58.1-322.02(18); 2025 Form 760 instructions p. 20). -->
 
    <id>VA-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -28,25 +26,29 @@
    <state>VA</state>
    <city>Richmond</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $36,000 military retirement + $48,000 W2 = $84,000 -->
-   <!-- AGI: $84,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $69,000 -->
-   <!-- Federal Tax: ~$9,600 -->
-   <!-- VA: Progressive tax (2% to 5.75%) -->
-   <!-- VA Military Retirement Exemption: $10,000 (age 60+ for 2025) -->
-   <!-- VA Taxable Retirement: $36,000 - $10,000 = $26,000 -->
-   <!-- VA Taxable Income: $26,000 + $48,000 = $74,000 -->
-   <!-- VA Tax (progressive brackets): ~$4,000 -->
-   <!-- Total Tax: $13,600 -->
-   <!-- Withholding: $14,500 -->
-   <!-- Refund: $900 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $48,000 + line 5b military retired pay $36,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $84,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $68,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 19,775 = 5,578.50 + 4,350.50 = $9,929.00.
+        Withholding $14,500 less tax $9,929.00 = refund $4,571.00. -->
+   <!-- Virginia (2025 Form 760): line 1 federal AGI $84,000; Schedule ADJ code 60 = lesser of $36,000
+        and $40,000 = $36,000 (line 7, line 8); line 9 VAGI $48,000; line 11 standard deduction $8,750
+        (Single, 2025); line 12 exemption $930 x 1; line 15 taxable income $38,320; line 16 tax (rate
+        schedule): 720 + 5.75% x 21,320 = $1,945.90, whole dollars $1,946 (the tax table's row $38,287
+        to $38,322 prints $1,945). Line 23 low-income credit $0 (VAGI over $15,650). Virginia tax $1,946.
+        VA_Tax is a #1200 placeholder (5.75% of VAGI less $8,500) and computes $2,271.25; the state
+        check fails until #1200 rebuilds Virginia. -->
+   <!-- expected_state_tax was an approximate $4,000 after a $10,000 subtraction, the 2023 figure (#1330). -->
    <expected_agi>84000</expected_agi>
-   <expected_taxable_income>69000</expected_taxable_income>
-   <expected_total_tax>13600</expected_total_tax>
-   <expected_state_tax>4000</expected_state_tax>
-   <expected_refund>900</expected_refund>
+   <expected_taxable_income>68250</expected_taxable_income>
+   <expected_total_tax>9929</expected_total_tax>
+   <expected_state_tax>1946</expected_state_tax>
+   <expected_refund>4571</expected_refund>
 
    <!-- Retired Military Taxpayer (Age 62) -->
    <taxpayers>

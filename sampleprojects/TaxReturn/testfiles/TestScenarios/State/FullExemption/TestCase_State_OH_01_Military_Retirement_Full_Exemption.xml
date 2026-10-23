@@ -15,12 +15,9 @@
       limitations under the License.
    </copyright>
 
-   <!-- Ohio Military Retirement Full Exemption Test Case -->
-   <!-- Test Case OH-Military-01: Military retiree with full exemption -->
-   <!-- OH provides 100% exemption for military retirement pay -->
-   <!-- OH has progressive tax rates with brackets -->
-   <!-- 2025 Rates: 0% on first $26,050, 2.75% on $26,051-$100,000, 3.125% on $100,001+ -->
-   <!-- This test verifies that military retirement is fully excluded from OH taxable income -->
+   <!-- Ohio military retirement test case (OH-MIL-FULL-01). -->
+   <!-- Uniformed services retirement income included in federal AGI is deducted in full on the -->
+   <!-- Ohio Schedule of Adjustments line 34 (R.C. 5747.01(A)(23); 2025 IT 1040 booklet p. 24). -->
 
    <id>OH-MIL-FULL-01</id>
    <tax_year>2025</tax_year>
@@ -28,29 +25,30 @@
    <state>OH</state>
    <city>Columbus</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $48,000 military retirement (100% exempt in OH) + $15,000 part-time work (taxable) = $63,000 AGI -->
-   <!-- Federal AGI: $63,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $48,000 -->
-   <!-- Federal Tax: $11,925 @ 10% = $1,192.50 + $36,075 @ 12% = $4,329.00 = $5,521.50 -->
-   <!--
-   OH Calculation:
-   - OH AGI starts with Federal AGI: $63,000
-   - OH Military Retirement Exclusion: $48,000 (100% exempt)
-   - OH Adjusted Income: $63,000 - $48,000 = $15,000
-   - OH Personal Exemption: $2,400 (AGI &lt; $40,000)
-   - OH Taxable Income: $15,000 - $2,400 = $12,600
-   - OH Tax: $0 (under the $26,050 exemption threshold)
-   - Total Tax: $5,521.50 + $0 = $5,521.50
-   - Withholding: $6,500
-   - Refund: $978.50
-   -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $15,000 + line 5b military retired pay $48,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $63,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $47,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 35,325 = $5,431.50.
+        Withholding $6,500 less tax $5,431.50 = refund $1,068.50. -->
+   <!-- Ohio (2025 Form IT 1040): line 1 federal AGI $63,000; Schedule of Adjustments line 34
+        uniformed services retirement income $48,000 (line 2b); line 3 Ohio AGI $15,000; line 4
+        personal exemption $2,400 (MAGI $40,000 or less); line 7 taxable nonbusiness income $12,600;
+        line 8a tax $0 (the first $26,050 is taxed at 0%; R.C. 5747.02). The $20 exemption credit
+        (Schedule of Credits line 9) is limited to the $0 tax. Ohio tax $0.
+        OH_Tax is a #1200 placeholder (3.5% of Ohio AGI) and computes $525; the state check fails
+        until #1200 rebuilds Ohio. -->
+   <!-- expected_state_tax $0 was right; the federal figures used the pre-OBBBA $15,000 standard
+        deduction (#1330). -->
    <expected_agi>63000</expected_agi>
-   <expected_taxable_income>48000</expected_taxable_income>
-   <expected_total_tax>5521.50</expected_total_tax>
+   <expected_taxable_income>47250</expected_taxable_income>
+   <expected_total_tax>5431.5</expected_total_tax>
    <expected_state_tax>0</expected_state_tax>
-   <expected_refund>978.50</expected_refund>
+   <expected_refund>1068.5</expected_refund>
 
    <!-- Retired Military Taxpayer with part-time work -->
    <taxpayers>

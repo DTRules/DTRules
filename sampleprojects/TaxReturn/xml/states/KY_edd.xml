@@ -9,8 +9,8 @@
 			<file_name>KY.xlsx</file_name>
 			<sheet_number>3</sheet_number>
 		</source>
-		<field name="ky_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY military retirement exemption (computed)"></field>
-		<field name="ky_military_retirement_exemption_amount" type="double" subtype="" access="r" input="" default_value="31110.0" comment="KY military retirement exemption - $31,110 (2025). Source: MOAA"></field>
+		<field name="ky_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY pension income exclusion applied to military retired pay (computed per taxpayer by ky_military_retirement_exemption): the lesser of the pay and $31,110 (Schedule M line 9, KRS 141.019(1)(g)1.b) (#1330)."></field>
+		<field name="ky_military_retirement_exemption_amount" type="double" subtype="" access="r" input="" default_value="31110.0" comment="Kentucky has no military-specific exemption: military retired pay for service after 1997 is a federal pension under the general pension income exclusion, 100% of taxable retirement benefits or $31,110 per taxpayer, whichever is less (Schedule M line 9; Schedule P Part II; KRS 141.019(1)(g)1.b; 2025 Form 740 packet). Equals ky_pension_exclusion, which the rules read. Service credit earned before 1998 is excluded in full on Schedule P Part I and is not modelled (#1330)."></field>
 		<field name="ky_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY taxable military retirement after exemption (computed)"></field>
 		<field name="ky_pension_exclusion" type="double" subtype="" access="r" input="" default_value="31110" comment="KY pension income exclusion per taxpayer (2025)"></field>
 		<field name="ky_standard_deduction" type="double" subtype="" access="r" input="" default_value="3270" comment="KY standard deduction all filing statuses (2025)"></field>

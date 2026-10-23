@@ -7,7 +7,7 @@
 <relative_path>VT.xlsx</relative_path>
 <file_name>VT.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:d804ff8513841e0d4ee13519615834d295b2316018e86e2b23d5d880974d62c8</source_hash>
+<source_hash>sha256:15553b146cff4296d080577770ea98ecf5594abae17c91f2a578128cb1c79762</source_hash>
 </source>
 <table_name>VT_Tax</table_name>
 <xls_file>VT.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Vermont Tax Calculation (top marginal 8.75%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Vermont Tax Calculation (top marginal 8.75%)" to job.audit_trail; set result.vt_military_retirement_exemption = 0.0; if result.state_calc_resident_status is equal to "full_year" then { if result.state_calc_total_agi &lt;= vt_military_agi_full_exemption_threshold then { set result.vt_military_retirement_exemption = result.military_retirement_income; } else { if result.state_calc_total_agi &lt; vt_military_agi_no_exemption_threshold then { set result.vt_military_retirement_exemption = result.military_retirement_income * ((the floor of ((vt_military_agi_no_exemption_threshold - result.state_calc_total_agi) / (vt_military_agi_no_exemption_threshold - vt_military_agi_full_exemption_threshold) * 100.0 + 0.5)) / 100.0); } endif } endif } endif; add "  VT Schedule IN-112 line 13 military retirement income exemption: $" + result.vt_military_retirement_exemption to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Vermont Tax Calculation (top marginal 8.75%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Vermont Tax Calculation (top marginal 8.75%)" job.audit_trail swap addto 0.0 cvd /result.vt_military_retirement_exemption xdef { { result.military_retirement_income cvd /result.vt_military_retirement_exemption xdef } { { result.military_retirement_income vt_military_agi_no_exemption_threshold result.state_calc_total_agi f- vt_military_agi_no_exemption_threshold vt_military_agi_full_exemption_threshold f- fdiv 100.0 fmul 0.5 f+ floor 100.0 fdiv fmul cvd /result.vt_military_retirement_exemption xdef } {} result.state_calc_total_agi vt_military_agi_no_exemption_threshold f&lt; ifelse } result.state_calc_total_agi vt_military_agi_full_exemption_threshold f&lt;= ifelse } result.state_calc_resident_status "full_year" streq if "  VT Schedule IN-112 line 13 military retirement income exemption: $" result.vt_military_retirement_exemption strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -49,27 +49,27 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $14,850 std ded, 8.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 14850.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0875</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.vt_military_retirement_exemption - 14850.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0875</action_dsl>
 <action_postfix>
-result.state_calc_agi 14850.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0875 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.vt_military_retirement_exemption f- 14850.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0875 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $11,500 std ded, 8.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 11500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0875</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.vt_military_retirement_exemption - 11500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0875</action_dsl>
 <action_postfix>
-result.state_calc_agi 11500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0875 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.vt_military_retirement_exemption f- 11500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0875 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $7,400 std ded, 8.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 7400.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0875</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.vt_military_retirement_exemption - 7400.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0875</action_dsl>
 <action_postfix>
-result.state_calc_agi 7400.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0875 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.vt_military_retirement_exemption f- 7400.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0875 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

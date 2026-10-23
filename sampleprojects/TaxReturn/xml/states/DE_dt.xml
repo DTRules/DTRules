@@ -7,7 +7,7 @@
 <relative_path>DE.xlsx</relative_path>
 <file_name>DE.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:a9b84718789b65eb9c5ebd26123fdae2ed13ae144c87ad75f90f9e07c3ee2143</source_hash>
+<source_hash>sha256:9669ddf91d97b4d98b90164fdb45a97929ccaf0a74d934c270d47a19afacd35b</source_hash>
 </source>
 <table_name>DE_Tax</table_name>
 <xls_file>DE.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Delaware Tax Calculation (top marginal 6.6%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Delaware Tax Calculation (top marginal 6.6%)" to job.audit_trail; set result.de_military_retirement_exemption = 0.0; perform DE_Military_Pension_Exclusion; add "  DE PIT-RES line 6 pension exclusion (military pension): $" + result.de_military_retirement_exemption to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Delaware Tax Calculation (top marginal 6.6%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Delaware Tax Calculation (top marginal 6.6%)" job.audit_trail swap addto 0.0 cvd /result.de_military_retirement_exemption xdef /DE_Military_Pension_Exclusion performtable "  DE PIT-RES line 6 pension exclusion (military pension): $" result.de_military_retirement_exemption strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -49,27 +49,27 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $6,500 std ded, 6.6%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 6500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.de_military_retirement_exemption - 6500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
 <action_postfix>
-result.state_calc_agi 6500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.de_military_retirement_exemption f- 6500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $3,250 std ded, 6.6%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 3250.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.de_military_retirement_exemption - 3250.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
 <action_postfix>
-result.state_calc_agi 3250.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.de_military_retirement_exemption f- 3250.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $3,250 std ded, 6.6%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 3250.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.de_military_retirement_exemption - 3250.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
 <action_postfix>
-result.state_calc_agi 3250.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.de_military_retirement_exemption f- 3250.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -86,6 +86,79 @@ result.state_calc_agi 3250.0 f- 0.0 fmax cvd /result.computed_state_taxable_inco
 <policy_statement column="3">
 <policy_description>DE Single/MFS: 6.6% x max(AGI - $3,250, 0) per 30 Del. C. § 1102</policy_description>
 <policy_statement_postfix>"DE Single/MFS: 6.6% x max(AGI - $3,250, 0) per 30 Del. C. § 1102"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 50617: DE_Military_Pension_Exclusion -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>DE.xlsx</relative_path>
+<file_name>DE.xlsx</file_name>
+<sheet_number>2</sheet_number>
+<source_hash>sha256:9669ddf91d97b4d98b90164fdb45a97929ccaf0a74d934c270d47a19afacd35b</source_hash>
+</source>
+<table_name>DE_Military_Pension_Exclusion</table_name>
+<xls_file>DE.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>50617</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer has a United States military pension</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>Y-N</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>PIT-RES line 6 column B: the lesser of $12,500 and the military pension, any age</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and de_military_retirement_exemption_amount to result.de_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay de_military_retirement_exemption_amount fmin cvd result.de_military_retirement_exemption f+ /result.de_military_retirement_exemption xdef
+</action_postfix>
+<columns>X--</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Pension exclusion for a United States military pension, PIT-RES line 6: the lesser of $12,500 and the pension, under 60 by 30 Del. C. 1106(b)(3) and at 60 or over by the general exclusion (2025 PIT-RES instructions, Line 6). One pension exclusion per taxpayer, so other pension income is not also excluded here.</policy_description>
+<policy_statement_postfix>"Pension exclusion for a United States military pension, PIT-RES line 6: the lesser of $12,500 and the pension, under 60 by 30 Del. C. 1106(b)(3) and at 60 or over by the general exclusion (2025 PIT-RES instructions, Line 6). One pension exclusion per taxpayer, so other pension income is not also excluded here."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No military pension for this taxpayer.</policy_description>
+<policy_statement_postfix>"No military pension for this taxpayer."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

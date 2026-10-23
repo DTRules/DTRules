@@ -7,7 +7,7 @@
 <relative_path>GA.xlsx</relative_path>
 <file_name>GA.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:1e5cb3ccb42ee025a924f335c9a9c814114fa90c627aca08efde0234081703f5</source_hash>
+<source_hash>sha256:01416d2adb4e7d66e50e1006202d21686ae558717c6fb6846038cd192b46d3d5</source_hash>
 </source>
 <table_name>GA_Tax</table_name>
 <xls_file>GA.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Georgia Tax Calculation (top marginal 5.39%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Georgia Tax Calculation (flat 5.19%, 2025)" to job.audit_trail; set result.ga_military_retirement_exemption = 0.0; perform GA_Retirement_Income_Exclusion; add "  GA Schedule 1 line 7 retirement/military exclusion: $" + result.ga_military_retirement_exemption to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Georgia Tax Calculation (top marginal 5.39%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Georgia Tax Calculation (flat 5.19%, 2025)" job.audit_trail swap addto 0.0 cvd /result.ga_military_retirement_exemption xdef /GA_Retirement_Income_Exclusion performtable "  GA Schedule 1 line 7 retirement/military exclusion: $" result.ga_military_retirement_exemption strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -48,44 +48,183 @@ job.filing_status "HOH" streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>MFJ/QSS: $24,000 std ded, 5.39%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 24000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0539</action_dsl>
+<action_comment>MFJ/QSS: $24,000 std ded, 5.19% (2025, HB 111)</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.ga_military_retirement_exemption - 24000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * ga_tax_rate</action_dsl>
 <action_postfix>
-result.state_calc_agi 24000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.ga_military_retirement_exemption f- 24000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income ga_tax_rate fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>HOH: $18,000 std ded, 5.39%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 18000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0539</action_dsl>
+<action_comment>HOH: $18,000 std ded, 5.19% (2025, HB 111)</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.ga_military_retirement_exemption - 18000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * ga_tax_rate</action_dsl>
 <action_postfix>
-result.state_calc_agi 18000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.ga_military_retirement_exemption f- 18000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income ga_tax_rate fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Default (Single/MFS): $12,000 std ded, 5.39%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 12000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0539</action_dsl>
+<action_comment>Default (Single/MFS): $12,000 std ded, 5.19% (2025, HB 111)</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.ga_military_retirement_exemption - 12000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * ga_tax_rate</action_dsl>
 <action_postfix>
-result.state_calc_agi 12000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.ga_military_retirement_exemption f- 12000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income ga_tax_rate fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>GA MFJ: 5.39% x max(AGI - $24,000, 0) per OCGA § 48-7-20</policy_description>
-<policy_statement_postfix>"GA MFJ: 5.39% x max(AGI - $24,000, 0) per OCGA § 48-7-20"</policy_statement_postfix>
+<policy_description>GA MFJ: 5.19% x max(AGI - $24,000, 0) per OCGA § 48-7-20 Georgia AGI is federal AGI less the Schedule 1 line 7 exclusion of military retired pay (GA_Retirement_Income_Exclusion).</policy_description>
+<policy_statement_postfix>"GA MFJ: 5.19% x max(AGI - $24,000, 0) per OCGA § 48-7-20 Georgia AGI is federal AGI less the Schedule 1 line 7 exclusion of military retired pay (GA_Retirement_Income_Exclusion)."</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>GA HOH: 5.39% x max(AGI - $18,000, 0) per OCGA § 48-7-20</policy_description>
-<policy_statement_postfix>"GA HOH: 5.39% x max(AGI - $18,000, 0) per OCGA § 48-7-20"</policy_statement_postfix>
+<policy_description>GA HOH: 5.19% x max(AGI - $18,000, 0) per OCGA § 48-7-20 Georgia AGI is federal AGI less the Schedule 1 line 7 exclusion of military retired pay (GA_Retirement_Income_Exclusion).</policy_description>
+<policy_statement_postfix>"GA HOH: 5.19% x max(AGI - $18,000, 0) per OCGA § 48-7-20 Georgia AGI is federal AGI less the Schedule 1 line 7 exclusion of military retired pay (GA_Retirement_Income_Exclusion)."</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
-<policy_description>GA Single/MFS: 5.39% x max(AGI - $12,000, 0) per OCGA § 48-7-20</policy_description>
-<policy_statement_postfix>"GA Single/MFS: 5.39% x max(AGI - $12,000, 0) per OCGA § 48-7-20"</policy_statement_postfix>
+<policy_description>GA Single/MFS: 5.19% x max(AGI - $12,000, 0) per OCGA § 48-7-20 Georgia AGI is federal AGI less the Schedule 1 line 7 exclusion of military retired pay (GA_Retirement_Income_Exclusion).</policy_description>
+<policy_statement_postfix>"GA Single/MFS: 5.19% x max(AGI - $12,000, 0) per OCGA § 48-7-20 Georgia AGI is federal AGI less the Schedule 1 line 7 exclusion of military retired pay (GA_Retirement_Income_Exclusion)."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 51201: GA_Retirement_Income_Exclusion -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>GA.xlsx</relative_path>
+<file_name>GA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+<source_hash>sha256:01416d2adb4e7d66e50e1006202d21686ae558717c6fb6846038cd192b46d3d5</source_hash>
+</source>
+<table_name>GA_Retirement_Income_Exclusion</table_name>
+<xls_file>GA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>51201</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer has military retired pay (a taxable pension on Schedule 1 worksheet line 12)</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YYYYNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Under 62 at year end: the military retirement income exclusion, Schedule 1 line 7b</condition_comment>
+<condition_dsl>job.tax_year - (get yearof taxpayer.date_of_birth) &lt; 62</condition_dsl>
+<condition_postfix>
+job.tax_year taxpayer.date_of_birth yearof - 62 &lt;
+</condition_postfix>
+<columns>YYNN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>More than $17,500 of Georgia earned income: an additional $17,500</condition_comment>
+<condition_dsl>taxpayer.w2_wages &gt; ga_military_exemption_under_62_earned_threshold</condition_dsl>
+<condition_postfix>
+taxpayer.w2_wages ga_military_exemption_under_62_earned_threshold f&gt;
+</condition_postfix>
+<columns>YN----</columns>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>65 or older: $65,000 retirement income exclusion</condition_comment>
+<condition_dsl>job.tax_year - (get yearof taxpayer.date_of_birth) &gt;= 65</condition_dsl>
+<condition_postfix>
+job.tax_year taxpayer.date_of_birth yearof - 65 &gt;=
+</condition_postfix>
+<columns>--YN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YYYY-N</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Schedule 1 line 7b: $17,500 plus an additional $17,500 when earned income exceeds $17,500 (O.C.G.A. 48-7-27(a)(5.1))</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and (ga_military_exemption_under_62_base * 2.0) to result.ga_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay ga_military_exemption_under_62_base 2.0 fmul fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
+</action_postfix>
+<columns>X-----</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Schedule 1 line 7b: up to $17,500 of military retirement income</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and ga_military_exemption_under_62_base to result.ga_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay ga_military_exemption_under_62_base fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
+</action_postfix>
+<columns>-X----</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Schedule 1 line 7a worksheet: earned income up to $5,000 (lines 3-5) plus taxable pensions (line 12), capped at $65,000 (line 16)</action_comment>
+<action_dsl>add the minimum of ((the minimum of taxpayer.w2_wages and ga_retirement_exclusion_earned_income_cap) + taxpayer.military_retirement_pay) and ga_military_exemption_65_plus to result.ga_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.w2_wages ga_retirement_exclusion_earned_income_cap fmin taxpayer.military_retirement_pay f+ ga_military_exemption_65_plus fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
+</action_postfix>
+<columns>--X---</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Schedule 1 line 7a worksheet: earned income up to $5,000 plus taxable pensions, capped at $35,000 at age 62-64</action_comment>
+<action_dsl>add the minimum of ((the minimum of taxpayer.w2_wages and ga_retirement_exclusion_earned_income_cap) + taxpayer.military_retirement_pay) and ga_military_exemption_62_to_64 to result.ga_military_retirement_exemption</action_dsl>
+<action_postfix>
+taxpayer.w2_wages ga_retirement_exclusion_earned_income_cap fmin taxpayer.military_retirement_pay f+ ga_military_exemption_62_to_64 fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
+</action_postfix>
+<columns>---X--</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Under 62 with Georgia earned income over $17,500: military retirement income exclusion of up to $35,000 (Form 500 Schedule 1 line 7b; O.C.G.A. 48-7-27(a)(5.1); 2025 IT-511 p. 20-21).</policy_description>
+<policy_statement_postfix>"Under 62 with Georgia earned income over $17,500: military retirement income exclusion of up to $35,000 (Form 500 Schedule 1 line 7b; O.C.G.A. 48-7-27(a)(5.1); 2025 IT-511 p. 20-21)."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Under 62: military retirement income exclusion of up to $17,500 (Schedule 1 line 7b).</policy_description>
+<policy_statement_postfix>"Under 62: military retirement income exclusion of up to $17,500 (Schedule 1 line 7b)."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>65 or older: the retirement income exclusion (Schedule 1 line 7a; O.C.G.A. 48-7-27(a)(5)), up to $65,000 of the military pension plus up to $5,000 of earned income. Other unearned income that also counts (interest, dividends, other pensions) is not modelled.</policy_description>
+<policy_statement_postfix>"65 or older: the retirement income exclusion (Schedule 1 line 7a; O.C.G.A. 48-7-27(a)(5)), up to $65,000 of the military pension plus up to $5,000 of earned income. Other unearned income that also counts (interest, dividends, other pensions) is not modelled."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>62 to 64: the retirement income exclusion, up to $35,000 of the military pension plus up to $5,000 of earned income (Schedule 1 line 7a). Line 7b is for taxpayers under 62 only.</policy_description>
+<policy_statement_postfix>"62 to 64: the retirement income exclusion, up to $35,000 of the military pension plus up to $5,000 of earned income (Schedule 1 line 7a). Line 7b is for taxpayers under 62 only."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>No military retired pay for this taxpayer; the retirement income exclusion for other income is not modelled (#1200).</policy_description>
+<policy_statement_postfix>"No military retired pay for this taxpayer; the retirement income exclusion for other income is not modelled (#1200)."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

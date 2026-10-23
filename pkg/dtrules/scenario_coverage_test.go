@@ -45,7 +45,14 @@ const (
 	// not the state's form. The scenarios are reconciled to the forms; the
 	// count comes back as #1200 rebuilds each state. 362 before this check.
 	// #1201 adds seven MultiState scenarios (13-19), all clean: 338 + 7.
-	scenariosCleanFloor = 345
+	// #1330 maps military_retirement_pay and applies each state's 2025
+	// subtraction: the IL, CO, GA, ID, KY, NM and two UT military-retirement
+	// scenarios come clean, and the six MultiState CO and UT scenarios with
+	// them, because CO_Tax now starts from federal taxable income and ut_tax
+	// takes Utah's credits: 345 + 14. The #1334 review adds MultiState 20 and
+	// 21 (Florida residents with Virginia and Georgia wages and a military
+	// pension), both clean: 359 + 2.
+	scenariosCleanFloor = 361
 	scenariosRunFloor   = 525
 )
 

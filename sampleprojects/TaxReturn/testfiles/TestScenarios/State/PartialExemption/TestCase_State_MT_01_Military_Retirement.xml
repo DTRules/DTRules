@@ -15,10 +15,12 @@
       limitations under the License.
    </copyright>
 
-   <!-- Montana Military Retirement Test Case -->
-   <!-- Test Case MT-Military-01: National Guard member ($15,000 exemption) -->
-   <!-- MT provides $15,000 exemption for National Guard retirement -->
-   <!-- Different from regular military retirement exemption rules -->
+   <!-- Montana military retirement test case (MT-MIL-01). -->
+   <!-- Montana's only military retirement subtraction for 2025 is the working military retiree -->
+   <!-- subtraction, Form 2 Schedule I line 13 computed on Form WMRE (MCA 15-30-2120(3)(n)): the lesser -->
+   <!-- of Montana wage income and 50% of the retirement pay, for five consecutive years, only for a -->
+   <!-- retiree who was a Montana resident when the pay began or became one on or after June 30, 2023. -->
+   <!-- There is no $15,000 National Guard retirement exemption on the 2025 Form 2. -->
 
    <id>MT-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -26,25 +28,32 @@
    <state>MT</state>
    <city>Billings</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $25,000 National Guard retirement + $42,000 W2 = $67,000 -->
-   <!-- AGI: $67,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $52,000 -->
-   <!-- Federal Tax: ~$6,100 -->
-   <!-- MT: Progressive tax (up to 5.9%) -->
-   <!-- MT National Guard Retirement Exemption: $15,000 -->
-   <!-- MT Taxable Retirement: $25,000 - $15,000 = $10,000 -->
-   <!-- MT Taxable Income: $10,000 + $42,000 = $52,000 -->
-   <!-- MT Tax (progressive brackets): ~$2,900 -->
-   <!-- Total Tax: $9,000 -->
-   <!-- Withholding: $9,800 -->
-   <!-- Refund: $800 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $42,000 + line 5b military retired pay $25,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $67,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $51,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 2,775 = 5,578.50 + 610.50 = $6,189.00.
+        Withholding $9,800 less tax $6,189.00 = refund $3,611.00. -->
+   <!-- Montana (2025 Form 2): line 1 federal AGI $67,000; line 2 federal deduction $15,750; line 3
+        $51,250; Schedule I line 13 working military retiree subtraction: the scenario carries no
+        residency or retirement dates, so Form WMRE cannot be completed and nothing is claimed, $0;
+        line 7 Montana taxable income $51,250; tax (Form 2 ordinary income schedule, Single): 4.7% x
+        21,100 = 991.70 + 5.9% x 30,150 = 1,778.85 = $2,770.55; the form's method, 51,250 x 5.9% less
+        $253 = $2,770.75, prints $2,771. No automatic credits. Montana tax $2,771. (A retiree who
+        qualified for Form WMRE would subtract the lesser of $42,000 and $12,500 and owe $2,033.)
+        MT_Tax is a #1200 placeholder (5.9% of AGI less $14,600) and computes $3,091.60; the state
+        check fails until #1200 rebuilds Montana. -->
+   <!-- expected_state_tax was an approximate $2,900 after a $15,000 "National Guard exemption" the
+        2025 Form 2 does not have (#1330). -->
    <expected_agi>67000</expected_agi>
-   <expected_taxable_income>52000</expected_taxable_income>
-   <expected_total_tax>9000</expected_total_tax>
-   <expected_state_tax>2900</expected_state_tax>
-   <expected_refund>800</expected_refund>
+   <expected_taxable_income>51250</expected_taxable_income>
+   <expected_total_tax>6189</expected_total_tax>
+   <expected_state_tax>2771</expected_state_tax>
+   <expected_refund>3611</expected_refund>
 
    <!-- National Guard Retiree -->
    <taxpayers>
