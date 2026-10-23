@@ -8,6 +8,9 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://dtrules.com',
+  // Astro 7 defaults to compressHTML: 'jsx', which drops the line breaks
+  // around inline elements and runs words together; keep Astro 5's behaviour.
+  compressHTML: true,
   vite: {
     plugins: [tailwindcss()]
   },
