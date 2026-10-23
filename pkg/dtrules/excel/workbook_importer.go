@@ -688,6 +688,7 @@ func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, sheetName stri
 					Name:    colA,
 					XlsFile: w.eddImporter.SourceFile,
 					Access:  "rw",
+					Comment: strings.TrimSpace(getCellValue(row, eddDescriptionColumn-1)),
 					Fields:  make([]*EDDXMLField, 0),
 					Source: &SourceXML{
 						RelativePath: w.eddImporter.sourceRelPath,

@@ -163,8 +163,9 @@ Excel workbook ──dtrules build──▶ XML (DSL + compiled postfix) ──l
 - The first authoring write to a project with no Excel (no workbook, no
   manifest) bootstraps it, and leaves every rule file backed by a workbook:
   tables, EDDs (an entity naming no workbook takes its file's) and mappings
-  (#1303). An EDD with an entity comment, which the EDD sheet has no cell for,
-  keeps its XML instead.
+  (#1303). Nothing is held back from the round trip: the XML that comes out
+  of a bootstrap is what compiling the new workbook produces, entity comments
+  included (#1306, §2.5).
 
 - A refused `table put` (CLI or MCP `table_put`) names the kind of failure,
   so a caller knows where to look: `compile_error` for EL that does not
@@ -414,6 +415,25 @@ sheet (`Allowed Values`, `Max Length`, `Max Words`) — so `dtrules build` and
 columns only where some field declares a constraint: the importer reads by
 column position and an absent column reads as empty, so a project that uses
 none keeps the workbook it already has.
+
+An entity's own `comment` travels in the Description cell (column H) of the
+entity's header row on the EDD sheet — the `(N attributes)` row — and
+`dtrules edd get|put` carry it as `entities[].comment`, so it survives
+`build`, `verify` and every authoring refresh (#1306). The cell is written
+only when the entity has a comment, by the same rule as the constraint
+columns: a workbook without one is byte-identical to what it was, and an
+older workbook, whose header rows have that cell empty, reads as it always
+did. An entity declared by several EDD files is one entity with one comment,
+and a workbook-scoped export writes it only into the workbook whose EDD
+declared it, so a build does not copy it into the other files (TaxReturn's
+`result` is declared by 51 files and commented by one), and two files that
+comment the same entity each keep their own. A declaration that names no
+workbook falls back to the entity's own, and only where no declaration named
+that workbook outright; two such declarations share that one cell and the
+last loaded wins (the authoring API never writes that shape: a bootstrap gives
+every unsourced entity its file's workbook first). Like a field's comment, it
+is read back from the sheet trimmed: leading and trailing whitespace does not
+survive the round trip.
 
 `dtrules validate` rejects a field whose own `default` its constraints reject,
 and the authoring API refuses to write one. Such a default is unreachable

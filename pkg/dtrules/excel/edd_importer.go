@@ -106,6 +106,13 @@ type EDDXMLOption struct {
 	Label string `xml:"label,attr"`
 }
 
+// eddDescriptionColumn is column H, 1-based: a field's comment on a field
+// row, and the entity's own comment on the entity header row (#1306). The
+// header row's other cells beyond A and B are empty, and were in every
+// workbook ever written, so an entity without a comment leaves the sheet as
+// it was and an older workbook reads as it did.
+const eddDescriptionColumn = 8
+
 // eddColumnCount is the number of columns in the EDD sheet. Columns A–H are
 // the legacy field metadata; I–M carry the collect/question metadata (#850):
 // I=Collect, J=Question text, K=Question type, L=Options, M=Reference range.
@@ -291,7 +298,8 @@ func NewEDDImporter() *EDDImporter {
 // Supports two formats:
 // 1. Single "EDD" sheet format (from exporter.go ExportEDD):
 //   - Row 1: Headers (Entity, Attribute, Type, SubType, Default, Input, Access, Description)
-//   - Entity header rows: entity name in col A, "(N attributes)" in col B
+//   - Entity header rows: entity name in col A, "(N attributes)" in col B,
+//     the entity's comment in col H (#1306)
 //   - Attribute rows: blank col A, attribute details in cols B-H
 //
 // 2. Multi-sheet format (from edd2excel, one sheet per entity):
@@ -618,6 +626,7 @@ func (i *EDDImporter) parseEDDSheet(f *excelize.File, sheetName string) (*EDDXML
 					Name:    colA,
 					XlsFile: i.SourceFile,
 					Access:  "rw", // default access
+					Comment: strings.TrimSpace(getCellValue(row, eddDescriptionColumn-1)),
 					Fields:  make([]*EDDXMLField, 0),
 					Source: &SourceXML{
 						RelativePath: i.sourceRelPath,

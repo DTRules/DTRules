@@ -185,6 +185,7 @@ const eddSchemaJSON = `{
         "required": ["name"],
         "properties": {
           "name": {"type": "string"},
+          "comment": {"type": "string", "description": "the entity's own comment; travels in the Description cell of its header row on the EDD sheet (#1306)"},
           "fields": {
             "type": "array",
             "items": {
