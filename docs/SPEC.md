@@ -544,6 +544,20 @@ load-bearing enough to record:
 - **Scenario `expected_state_tax` is not checked by the rules** (#1317).
   `TestStateScenarios` checks it for the states whose tables were rebuilt
   under #1200 (AR, LA, NM, OK).
+- **A scenario's expected figures are worked from its own inputs and the
+  year's law, never from what the rules print.** The arithmetic and its
+  source go in the file (`Credits_05_QW_Widow`, the `XX_02_MFJ_Multiple`
+  template). `TestTaxReturnScenarioCoverage` runs every scenario, in CI
+  too, and holds the count that validates cleanly at a floor that only
+  rises (#1140, #1322). The scenarios still under it fail validation; each
+  is brought clean by fixing whatever is wrong (scenario, mapping or rule),
+  never by restating the scenario to match the rules.
+- **The ScheduleH scenarios compute no Schedule H tax.** `TaxReturn_map.xml`
+  has no `household_employee` and no `<spouse>` element, so those inputs
+  never reach the rules, and the scenarios' `expected_schedule_h_*` fields,
+  like `expected_federal_tax` everywhere, are read by nothing. Five
+  scenarios (`Estimated_05`, `Estimated_06`, `Foreign_03`, `Integration_07`,
+  `ScheduleE_05`) do not parse as XML; the ratchet counts them as not run.
 
 - **TaxReturn's non-resident state tax uses resident deductions.**
   `Dispatch_State_Tax` runs every roster entry through its state's table

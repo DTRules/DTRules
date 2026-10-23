@@ -24,11 +24,17 @@
    <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
-   <!-- Federal AGI: ~$150,000 -->
    <!-- Primary: W-2 $85,000 -->
    <!-- Spouse: W-2 $45,000 + Self-Employment $20,000 -->
-   <!-- Total AGI: $150,000 -->
-   <expected_agi>150000</expected_agi>
+   <!-- Gross income: $150,000 -->
+   <!-- Schedule SE (2025 Schedule SE (Form 1040)): line 4a $20,000 x 92.35% =
+        $18,470; lines 10 and 11, 12.4% + 2.9% = 15.3%, line 12 $2,825.91;
+        line 13 one-half, $1,412.96, deducted on Schedule 1 (Form 1040)
+        line 15 (IRC 164(f)). -->
+   <!-- AGI: $150,000 - $1,412.96 = $148,587.04 -->
+   <!-- expected_agi was $150,000, the gross income: the deductible half of
+        self-employment tax was left out (#1322). -->
+   <expected_agi>148587</expected_agi>
 
    <!-- Taxpayers -->
    <taxpayers>

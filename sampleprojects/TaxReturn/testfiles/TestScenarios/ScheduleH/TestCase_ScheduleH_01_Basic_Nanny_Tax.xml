@@ -25,13 +25,17 @@
    <!-- Expected values for validation -->
    <!-- Taxpayer W-2 Wages: $120,000 -->
    <!-- AGI: $120,000 -->
-   <!-- Standard Deduction: $30,000 -->
-   <!-- Taxable Income: $90,000 -->
-   <!-- Regular Tax: ~$10,494 -->
+   <!-- Standard Deduction: $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21
+        sec. 70102; IRS IR-2025-103) -->
+   <!-- Taxable Income: $120,000 - $31,500 = $88,500 -->
+   <!-- Regular Tax (2025 MFJ brackets, Rev. Proc. 2024-40): $2,385 + 12% of
+        ($88,500 - $23,850) = $10,143 -->
    <!-- Schedule H Tax: $2,719.50 -->
-   <!-- Total Tax: ~$13,213.50 -->
+   <!-- Total Tax: $10,143 + $2,719.50 = $12,862.50 -->
+   <!-- expected_taxable_income was $90,000, from the pre-OBBBA $30,000
+        deduction (#1322). -->
    <expected_agi>120000</expected_agi>
-   <expected_taxable_income>90000</expected_taxable_income>
+   <expected_taxable_income>88500</expected_taxable_income>
    <expected_schedule_h_social_security_tax>2170.00</expected_schedule_h_social_security_tax>
    <expected_schedule_h_medicare_tax>507.50</expected_schedule_h_medicare_tax>
    <expected_schedule_h_futa_tax>42.00</expected_schedule_h_futa_tax>

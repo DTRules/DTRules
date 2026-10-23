@@ -39,8 +39,13 @@
    -->
 
    <!-- Expected values for validation -->
+   <!-- Federal: AGI $85,000 + $65,000 = $150,000; standard deduction $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21
+        sec. 70102; IRS IR-2025-103);
+        taxable income $150,000 - $31,500 = $118,500 -->
+   <!-- expected_taxable_income was $126,300, which no 2025 deduction gives
+        from this file's inputs (#1322). -->
    <expected_agi>150000</expected_agi>
-   <expected_taxable_income>126300</expected_taxable_income>
+   <expected_taxable_income>118500</expected_taxable_income>
 
    <!-- Taxpayers -->
    <taxpayers>
