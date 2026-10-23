@@ -39,7 +39,8 @@
    <!-- expected_state_tax was $1519, not derived from the state's 2025 form (#1317). -->
    <expected_agi>85000</expected_agi>
    <expected_taxable_income>53500</expected_taxable_income>
-   <expected_federal_tax>5943</expected_federal_tax>
+      <!-- expected_federal_tax is read by nothing and is left as it was; the 2025 figure is in the derivation above (#1317). -->
+   <expected_federal_tax>5827</expected_federal_tax>
    <expected_state_tax>1766</expected_state_tax>
    <expected_total_tax>5943</expected_total_tax>
 

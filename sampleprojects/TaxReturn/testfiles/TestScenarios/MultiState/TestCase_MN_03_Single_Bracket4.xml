@@ -29,15 +29,17 @@
    <!-- Federal: AGI $250,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
         $250,000 - $15,750 = $234,250; tax $52,023 (2025 Single schedule, Rev. Proc. 2024-40) -->
    <!-- Additional Medicare tax (Form 8959): 0.9% of wages over $200,000 = $450; total $52,473 -->
-   <!-- Minnesota (2025 Form M1; 2025 brackets and standard deduction from the
-        Department of Revenue, revenue.state.mn.us/mndor-pp/20636): standard deduction
-        single $14,950; taxable $250,000 - $14,950 = $235,050; $32,570 x 5.35% = $1,742.49; $74,420 x 6.80% = $5,060.56; $91,640 x 7.85% = $7,193.74; $36,420 x 9.85% = $3,587.37;
-        tax $17,584.17. The M1 tax table (used under $100,000) is computed at the midpoint of
-        each $100 band, which is this figure here. -->
+   <!-- Minnesota (2025 Form M1 instructions, revenue.state.mn.us, Worksheet A for Line 4 and the
+        2025 brackets; standard deduction single $14,950): AGI $250,000 is over $238,950, so
+        Worksheet A: step 2 = $250,000 - $238,950 = $11,050; step 3 = 3% = $331.50; step 4 = $0
+        (not over $330,300); step 6 = $331.50; step 8 = 80% x $14,950 = $11,960; step 9 = $331.50;
+        line 4 standard deduction = $14,950 - $331.50 = $14,618.50 (M.S. 290.0123 subd. 5).
+        Taxable $250,000 - $14,618.50 = $235,381.50; $32,570 x 5.35% = $1,742.49; $74,420 x 6.80% = $5,060.56;
+        $91,640 x 7.85% = $7,193.74; $36,751.50 x 9.85% = $3,620.02; tax $17,616.81. -->
    <!-- expected_state_tax was $17583, not derived from the state's 2025 form (#1317). -->
    <expected_agi>250000</expected_agi>
    <expected_taxable_income>234250</expected_taxable_income>
-   <expected_state_tax>17584</expected_state_tax>
+   <expected_state_tax>17617</expected_state_tax>
 
    <!-- Single Taxpayer -->
    <taxpayers>
