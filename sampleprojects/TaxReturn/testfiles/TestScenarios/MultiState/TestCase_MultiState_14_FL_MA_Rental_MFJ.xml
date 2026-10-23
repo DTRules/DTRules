@@ -1,0 +1,107 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Joint FL residents with a rental property in MA: the joint exemption column of
+        MA_Tax, prorated the same way as scenario 13 (#1201).
+
+        Federal (2025): AGI = 120,000 + 30,000 wages + 50,000 rent = $200,000;
+        taxable income = 200,000 - 31,500 joint standard deduction = $168,500.
+
+        Massachusetts, 2025 Form 1-NR/PY:
+          line 12/14a  Massachusetts 5.0% income (the rent)             $50,000
+          line 14e     non-Massachusetts source income (the wages)      $150,000
+          line 14f     total income                                     $200,000
+          line 14g     ratio: 50,000 / 200,000                          = 0.2500
+          line 4a/22a  personal exemption, married filing jointly       $8,800
+          line 22      22a x 14g = 8,800 x 0.2500                       = $2,200
+          line 23      50,000 - 2,200                                   = $47,800
+          line 26      47,800 x 0.05                                    = $2,390.00 -->
+   <id>MS-14-FL-MA-RENTAL-MFJ</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+
+   <expected_agi>200000</expected_agi>
+   <expected_taxable_income>168500</expected_taxable_income>
+   <expected_ma_nonresident_tax>2390.00</expected_ma_nonresident_tax>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>FL</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>full_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>3/14/1985</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Test Spouse</name>
+         <date_of_birth>7/2/1986</date_of_birth>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Employer in FL</source>
+         <gross_amount>120000</gross_amount>
+         <state_code>FL</state_code>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Second employer in FL</source>
+         <gross_amount>30000</gross_amount>
+         <state_code>FL</state_code>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental</type>
+         <source>Rental property in MA</source>
+         <gross_amount>50000</gross_amount>
+         <state_code>MA</state_code>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

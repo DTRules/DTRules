@@ -23,9 +23,29 @@
 > lesser of the non-resident liabilities and the resident tax prorated by the
 > doubly-taxed share of AGI.
 >
-> Still unimplemented: the proportional non-resident deductions described
-> under "State-Specific Tables" below (every table applies its resident
-> deduction to sourced income) and per-state credit ceilings.
+> Since #1201, `Compute_Roster_State_Tax` also publishes
+> `result.state_calc_total_agi` (federal AGI), `result.state_calc_ratio`
+> (sourced over federal income, capped at 1.0),
+> `result.state_calc_resident_status` and `result.state_calc_days_in_state`
+> (the entry's period in calendar days, carried from the `state_period` onto
+> `state_tax_result.days_in_state` when the roster is built), and labels a
+> `part_year` entry as such in the audit trail. A state table applies its own
+> form's proration to those: `MA_Tax` prorates the exemptions for a
+> non-resident by income (Form 1-NR/PY lines 14g, 22: Massachusetts income
+> over the return's total income, line 14f, which `MA_Exemption_Ratio`
+> builds from `result.gross_income` less Social Security and state refunds
+> -- not federal AGI) and for a part-year resident by days of residence over
+> 365 (line 3), both to four decimal places; a non-resident period that
+> omits `resident_status` is read as `nonresident`, not the default
+> `full_year`; a filer who is both part-year and non-resident of one state
+> (MA Schedule R/NR) is not modelled; Kentucky, measured against Form 740-NP line 10 ("do not
+> prorate"), gives a non-resident the full standard deduction, so `KY_Tax`
+> was already right. The "proportional deductions" described under
+> "State-Specific Tables" below were never the general rule: states differ,
+> and SPEC §2.9 lists which have been done. Still unimplemented: the
+> remaining states (NY, MN and MD compute as a resident and multiply the
+> tax by the ratio; their tables are #1200 placeholders) and per-state credit
+> ceilings.
 
 ## Overview
 

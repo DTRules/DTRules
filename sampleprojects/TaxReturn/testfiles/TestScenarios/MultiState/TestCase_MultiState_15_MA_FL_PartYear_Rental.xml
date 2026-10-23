@@ -1,0 +1,95 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Part-year resident who moved from MA to FL on 8 August 2025. Massachusetts taxes
+        the income received while a resident and prorates the personal exemption by days
+        of residence (Form 1-NR/PY line 3), not by income (#1201). Florida has no income tax.
+
+        Residence: MA 1 Jan - 7 Aug 2025 = 31+28+31+30+31+30+31+7 = 219 days;
+                   FL 8 Aug - 31 Dec 2025 = 24+30+31+30+31       = 146 days; 219 + 146 = 365.
+
+        Income: $60,000 of rent from a property in Florida, received evenly through the
+        year, so the part received while a Massachusetts resident is 219/365 of it. Rent
+        rather than wages so that the line 15 FICA deduction, which MA_Tax does not model,
+        does not enter the figure; a property outside Massachusetts so that nothing is
+        Massachusetts-source income after the move (no Schedule R/NR).
+
+        Federal (2025): AGI = $60,000; taxable income = 60,000 - 15,750 single standard
+        deduction = $44,250.
+
+        Massachusetts, worked from the 2025 Form 1-NR/PY and its instructions
+        (mass.gov/doc/2025-form-1-nrpy-instructions/download):
+          line 2       dates as a Massachusetts resident            1/1/2025 - 8/7/2025
+          line 3       days resident / 365 = 219 / 365              = 0.6000 (four decimal places)
+          line 9       rental income received while a resident:
+                       60,000 x 219/365                             = $36,000
+          line 12      total 5.0% income                            $36,000
+          line 21      5.0% income after deductions (none claimed)  $36,000
+          line 4a/22a  personal exemption, single                   $4,400
+          line 22      part-year residents: 22a x line 3 = 4,400 x 0.6000 = $2,640
+          line 23      5.0% income after exemptions: 36,000 - 2,640 = $33,360
+          line 26      tax on 5.0% income: 33,360 x 0.05            = $1,668.00 -->
+   <id>MS-15-MA-FL-PARTYEAR</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+
+   <expected_agi>60000</expected_agi>
+   <expected_taxable_income>44250</expected_taxable_income>
+   <expected_ma_part_year_tax>1668.00</expected_ma_part_year_tax>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>MA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>8/7/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>FL</state_code>
+         <start_date>8/8/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>6/2/1979</date_of_birth>
+         <is_primary>true</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental</type>
+         <source>Rental property in FL, rent received evenly through the year</source>
+         <gross_amount>60000</gross_amount>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

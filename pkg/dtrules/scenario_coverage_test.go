@@ -44,8 +44,9 @@ const (
 	// those tables are placeholders (the top rate on AGI less a deduction),
 	// not the state's form. The scenarios are reconciled to the forms; the
 	// count comes back as #1200 rebuilds each state. 362 before this check.
-	scenariosCleanFloor = 338
-	scenariosRunFloor   = 518
+	// #1201 adds seven MultiState scenarios (13-19), all clean: 338 + 7.
+	scenariosCleanFloor = 345
+	scenariosRunFloor   = 525
 )
 
 func TestTaxReturnScenarioCoverage(t *testing.T) {

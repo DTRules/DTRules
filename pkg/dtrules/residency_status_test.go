@@ -151,12 +151,21 @@ func rosterEntry(t *testing.T, rs *session.RuleSet, xmlDir,
 func TestResidencyStatusReachesTheRoster(t *testing.T) {
 	rs, xmlDir := loadTaxReturn(t)
 
-	for _, want := range []string{"part_year", "nonresident", "full_year"} {
-		t.Run(want, func(t *testing.T) {
-			got, _ := residencyOf(t, rs, xmlDir, "OH", "PA", want, 80000)
-			if got != want {
+	// A period for a state other than job.state is a non-resident period:
+	// part_year and nonresident are carried as they are, and anything else --
+	// full_year is the default when a scenario leaves <resident_status> out --
+	// arrives as nonresident, so that a non-resident state cannot be handed
+	// a full-year resident's exemption (#1201 review).
+	for _, c := range []struct{ period, want string }{
+		{"part_year", "part_year"},
+		{"nonresident", "nonresident"},
+		{"full_year", "nonresident"},
+	} {
+		t.Run(c.period, func(t *testing.T) {
+			got, _ := residencyOf(t, rs, xmlDir, "OH", "PA", c.period, 80000)
+			if got != c.want {
 				t.Errorf("state_tax_result.resident_status = %q, want %q — the period's status "+
-					"never reached the roster, so the part-year branch cannot be selected", got, want)
+					"never reached the roster, so the part-year branch cannot be selected", got, c.want)
 			}
 		})
 	}

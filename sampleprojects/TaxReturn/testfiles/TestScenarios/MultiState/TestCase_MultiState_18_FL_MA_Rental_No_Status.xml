@@ -1,0 +1,92 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Scenario 13 with the Massachusetts period's <resident_status> left out. The field
+        defaults to full_year; a period for a state other than the taxpayer's state is a
+        non-resident period whatever it says, and the roster entry must be built as one,
+        so the Massachusetts figure is scenario 13's (#1201 review, finding 2).
+
+        Federal (2025): AGI = 90,000 wages + 30,000 rent = $120,000;
+        taxable income = 120,000 - 15,750 single standard deduction = $104,250.
+
+        Massachusetts, 2025 Form 1-NR/PY (mass.gov/doc/2025-form-1-nrpy-instructions/download):
+          line 14d     Massachusetts income (the rent)                       $30,000
+          line 14e     non-Massachusetts source income (the wages)           $90,000
+          line 14f     total income: 14d + 14e                               $120,000
+          line 14g     30,000 / 120,000                                      = 0.2500
+          line 22      4,400 x 0.2500                                        = $1,100
+          line 23      30,000 - 1,100                                        = $28,900
+          line 26      28,900 x 0.05                                         = $1,445.00 -->
+   <id>MS-18-FL-MA-RENTAL-NO-STATUS</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+
+   <expected_agi>120000</expected_agi>
+   <expected_taxable_income>104250</expected_taxable_income>
+   <expected_ma_nonresident_tax>1445.00</expected_ma_nonresident_tax>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>FL</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>full_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>3/14/1985</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Employer in FL</source>
+         <gross_amount>90000</gross_amount>
+         <state_code>FL</state_code>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental</type>
+         <source>Rental property in MA</source>
+         <gross_amount>30000</gross_amount>
+         <state_code>MA</state_code>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

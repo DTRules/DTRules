@@ -1,0 +1,109 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Head of household, FL resident with one dependent child and a rental property in MA.
+        The Massachusetts ratio is inexact (30,000 / 90,000 = 0.3333...), so the "carry to
+        four decimal places" rule enters the figure, and the head-of-household exemption
+        column of MA_Tax is exercised (#1201 review, finding 3).
+
+        Federal (2025): AGI = 60,000 wages + 30,000 rent = $90,000;
+        taxable income = 90,000 - 23,625 HOH standard deduction = $66,375.
+
+        Massachusetts, worked from the 2025 Form 1-NR/PY and its instructions
+        (mass.gov/doc/2025-form-1-nrpy-instructions/download):
+          line 9/12/14a Massachusetts 5.0% income (the rent)                 $30,000
+          line 14d      total income this return                             $30,000
+          line 14e      non-Massachusetts source income (the wages)          $60,000
+          line 14f      total income: 14d + 14e                              $90,000
+          line 14g      deduction and exemption ratio: 30,000 / 90,000      = 0.3333 (four decimal places)
+          line 4a       personal exemption, head of household                $6,800
+          line 4b       dependents: 1 x $1,000                               $1,000
+          line 4g/22a   total exemptions                                     $7,800
+          line 22       nonresidents: 22a x 14g = 7,800 x 0.3333            = $2,599.74
+          line 23       5.0% income after exemptions: 30,000 - 2,599.74     = $27,400.26
+          line 26       tax on 5.0% income: 27,400.26 x 0.05                = $1,370.01 (1,370.013)
+        Rent rather than wages so that the line 15 FICA deduction, which MA_Tax does not
+        model, does not enter the figure. -->
+   <id>MS-16-FL-MA-RENTAL-HOH</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>FL</state>
+
+   <expected_agi>90000</expected_agi>
+   <expected_taxable_income>66375</expected_taxable_income>
+   <expected_ma_nonresident_tax>1370.01</expected_ma_nonresident_tax>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>FL</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>full_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>9/21/1983</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Employer in FL</source>
+         <gross_amount>60000</gross_amount>
+         <state_code>FL</state_code>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental</type>
+         <source>Rental property in MA</source>
+         <gross_amount>30000</gross_amount>
+         <state_code>MA</state_code>
+      </income>
+   </incomes>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Test Child</name>
+         <date_of_birth>5/4/2014</date_of_birth>
+         <relationship>child</relationship>
+         <months_lived_in_home>12</months_lived_in_home>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+   </dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
