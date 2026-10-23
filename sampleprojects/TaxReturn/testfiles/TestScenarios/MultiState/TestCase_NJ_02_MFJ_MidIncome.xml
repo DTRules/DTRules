@@ -43,8 +43,10 @@
    <expected_agi>100000</expected_agi>
    <expected_taxable_income>68500</expected_taxable_income>
    <!-- expected_total_tax is Form 1040 line 24, the federal total; NJ tax is
-        not part of it. It was $10,499: a $7,859 federal tax at the pre-OBBBA
-        $30,000 deduction plus the $2,640 NJ tax (#1322). -->
+        not part of it. It was $10,499: $7,859 plus the $2,640 NJ tax. The
+        $7,859 was a mis-addition in the original file: at $70,000 taxable
+        (the pre-OBBBA $30,000 deduction) the 2025 tax is $2,385 + 12% x
+        $46,150 = $7,923 (#1322). -->
    <expected_federal_tax>7743</expected_federal_tax>
    <expected_state_tax>2640</expected_state_tax>
    <expected_total_tax>7743</expected_total_tax>
