@@ -4102,7 +4102,7 @@ subcommand in the order a typical user hits them.
 Install
 -------
 
-Option 1 — go install (requires Go 1.21+):
+Option 1 — go install (requires Go 1.25+):
 
     go install github.com/DTRules/DTRules/cmd/dtrules@latest
 
