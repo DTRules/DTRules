@@ -37,6 +37,7 @@ jobs:
         uses: actions/setup-node@v4                                                                                    
         with:                                                                                                          
             node-version: 22
+            check-latest: true
       - name: Build                                                                                                    
         run: cd website && npm ci && npm run build                                                                     
       - name: Setup Pages
