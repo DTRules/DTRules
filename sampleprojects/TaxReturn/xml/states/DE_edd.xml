@@ -7,7 +7,7 @@
 		<source>
 			<relative_path>DE.xlsx</relative_path>
 			<file_name>DE.xlsx</file_name>
-			<sheet_number>2</sheet_number>
+			<sheet_number>3</sheet_number>
 		</source>
 		<field name="de_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="2000.0" comment="DE tax bracket 1 upper limit (2025)"></field>
 		<field name="de_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE tax rate for bracket 1 - 0% (2025)"></field>
@@ -22,8 +22,8 @@
 		<field name="de_bracket_6_limit" type="double" subtype="" access="r" input="" default_value="60000.0" comment="DE tax bracket 6 upper limit (2025)"></field>
 		<field name="de_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="DE tax rate for bracket 6 - 5.5% (2025)"></field>
 		<field name="de_bracket_7_rate" type="double" subtype="" access="r" input="" default_value="0.066" comment="DE tax rate for bracket 7 (over $60,000) - 6.6% (2025)"></field>
-		<field name="de_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE military retirement exemption (computed)"></field>
-		<field name="de_military_retirement_exemption_amount" type="double" subtype="" access="r" input="" default_value="12500.0" comment="DE military retirement exemption amount - $12,500 all ages (2025). Source: MOAA"></field>
+		<field name="de_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE pension exclusion applied to military retired pay (computed per taxpayer by DE_Military_Pension_Exclusion): the lesser of the pay and $12,500 (#1330)."></field>
+		<field name="de_military_retirement_exemption_amount" type="double" subtype="" access="r" input="" default_value="12500.0" comment="Delaware pension exclusion for a United States military pension: the lesser of $12,500 and the pension at any age (under 60, 30 Del. C. 1106(b)(3), $12,500 for 2022-2026; 60 and over, the general $12,500 exclusion). PIT-RES line 6 column B; 2025 PIT-RES instructions, Line 6. One pension exclusion per taxpayer."></field>
 		<field name="de_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE taxable military retirement after exemption (computed)"></field>
 		<field name="de_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="3250.0" comment="DE standard deduction head of household (2025)"></field>
 		<field name="de_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="6500.0" comment="DE standard deduction married filing jointly (2025)"></field>

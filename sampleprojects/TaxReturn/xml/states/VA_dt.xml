@@ -7,7 +7,7 @@
 <relative_path>VA.xlsx</relative_path>
 <file_name>VA.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:db050c2e526fb79f983e3d2ba5e9b4322f56b0000b33311da50828a7fd20c281</source_hash>
+<source_hash>sha256:1ff71af2841cd0c7285ca74379624d59c8222028fd56092fee8273ab18b85d7e</source_hash>
 </source>
 <table_name>VA_Tax</table_name>
 <xls_file>VA.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Virginia Tax Calculation (top marginal 5.75%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Virginia Tax Calculation (top marginal 5.75%)" to job.audit_trail; set result.va_military_benefits_subtraction = 0.0; perform VA_Military_Benefits_Subtraction; add "  VA Schedule ADJ code 60 military benefits subtraction: $" + result.va_military_benefits_subtraction to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Virginia Tax Calculation (top marginal 5.75%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Virginia Tax Calculation (top marginal 5.75%)" job.audit_trail swap addto 0.0 cvd /result.va_military_benefits_subtraction xdef /VA_Military_Benefits_Subtraction performtable "  VA Schedule ADJ code 60 military benefits subtraction: $" result.va_military_benefits_subtraction strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -49,27 +49,27 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $17,000 std ded, 5.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 17000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.va_military_benefits_subtraction - 17000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.state_calc_agi 17000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.va_military_benefits_subtraction f- 17000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $8,500 std ded, 5.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 8500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.va_military_benefits_subtraction - 8500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.state_calc_agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.va_military_benefits_subtraction f- 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $8,500 std ded, 5.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 8500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.va_military_benefits_subtraction - 8500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.state_calc_agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.va_military_benefits_subtraction f- 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -86,6 +86,66 @@ result.state_calc_agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_inco
 <policy_statement column="3">
 <policy_description>VA Single/MFS: 5.75% x max(AGI - $8,500, 0) per Va. Code § 58.1-320</policy_description>
 <policy_statement_postfix>"VA Single/MFS: 5.75% x max(AGI - $8,500, 0) per Va. Code § 58.1-320"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 54201: VA_Military_Benefits_Subtraction -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>VA.xlsx</relative_path>
+<file_name>VA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+<source_hash>sha256:1ff71af2841cd0c7285ca74379624d59c8222028fd56092fee8273ab18b85d7e</source_hash>
+</source>
+<table_name>VA_Military_Benefits_Subtraction</table_name>
+<xls_file>VA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>54201</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer has military retirement income</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YN</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Schedule ADJ code 60: up to $40,000 of military benefits per individual (Va. Code 58.1-322.02(18))</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and va_military_retirement_exemption to result.va_military_benefits_subtraction</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay va_military_retirement_exemption fmin cvd result.va_military_benefits_subtraction f+ /result.va_military_benefits_subtraction xdef
+</action_postfix>
+<columns>X-</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Military Benefits Subtraction, Schedule ADJ code 60: up to $40,000 of military retirement income per individual, any age, for taxable year 2025 and after (Va. Code 58.1-322.02(18)(c),(d); 2025 Form 760 instructions p. 20).</policy_description>
+<policy_statement_postfix>"Military Benefits Subtraction, Schedule ADJ code 60: up to $40,000 of military retirement income per individual, any age, for taxable year 2025 and after (Va. Code 58.1-322.02(18)(c),(d); 2025 Form 760 instructions p. 20)."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No military retirement income for this taxpayer.</policy_description>
+<policy_statement_postfix>"No military retirement income for this taxpayer."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

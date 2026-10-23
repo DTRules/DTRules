@@ -15,11 +15,9 @@
       limitations under the License.
    </copyright>
 
-   <!-- Illinois Military Retirement Full Exemption Test Case -->
-   <!-- Test Case IL-Military-01: Military retiree with full exemption -->
-   <!-- IL provides 100% exemption for military retirement pay -->
-   <!-- IL has flat 4.95% state income tax rate -->
-   <!-- This test verifies that military retirement is fully excluded from IL taxable income -->
+   <!-- Illinois military retirement test case (IL-MIL-FULL-01). -->
+   <!-- Illinois subtracts federally taxed retirement income, including military retired pay, in full -->
+   <!-- on IL-1040 line 5 (2025 IL-1040 instructions; Publication 120; 35 ILCS 5/203(a)(2)(F)). -->
 
    <id>IL-MIL-FULL-01</id>
    <tax_year>2025</tax_year>
@@ -27,29 +25,28 @@
    <state>IL</state>
    <city>Springfield</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $45,000 military retirement (100% exempt in IL) + $30,000 W2 wages (taxable) = $75,000 AGI -->
-   <!-- Federal AGI: $75,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $60,000 -->
-   <!-- Federal Tax: $11,925 @ 10% = $1,192.50 + $48,075 @ 12% = $5,769.00 = $6,961.50 -->
-   <!--
-   IL Calculation:
-   - IL AGI starts with Federal AGI: $75,000
-   - IL Military Retirement Exclusion: $45,000 (100% exempt)
-   - IL Adjusted AGI: $75,000 - $45,000 = $30,000
-   - IL does not have state standard deduction (uses federal AGI with modifications)
-   - IL Taxable Income: $30,000
-   - IL Tax: $30,000 * 0.0495 = $1,485
-   - Total Tax: $6,961.50 + $1,485 = $8,446.50
-   - Withholding: $9,500
-   - Refund: $1,053.50
-   -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $30,000 + line 5b military retired pay $45,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $75,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $59,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 10,775 = 5,578.50 + 2,370.50 = $7,949.00.
+        Withholding $9,500 less tax $7,949.00 = refund $1,551.00. -->
+   <!-- Illinois (2025 Form IL-1040): line 1 federal AGI $75,000; line 5 subtraction of retirement
+        income (military retired pay) $45,000; line 9 base income $30,000; line 10 exemption
+        $2,850 x 1; line 11 net income $27,150; line 12 tax 4.95% = $1,343.925, rounded to whole
+        dollars on the form: $1,344. No automatic credits. -->
+   <!-- expected_state_tax was $1,485, 4.95% of $30,000 with the $2,850 exemption left out; the federal
+        figures used the pre-OBBBA $15,000 standard deduction and added the state tax into
+        expected_total_tax (#1330). -->
    <expected_agi>75000</expected_agi>
-   <expected_taxable_income>60000</expected_taxable_income>
-   <expected_total_tax>8446.50</expected_total_tax>
-   <expected_state_tax>1485</expected_state_tax>
-   <expected_refund>1053.50</expected_refund>
+   <expected_taxable_income>59250</expected_taxable_income>
+   <expected_total_tax>7949</expected_total_tax>
+   <expected_state_tax>1344</expected_state_tax>
+   <expected_refund>1551</expected_refund>
 
    <!-- Retired Military Taxpayer working part-time -->
    <taxpayers>

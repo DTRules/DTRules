@@ -15,11 +15,10 @@
       limitations under the License.
    </copyright>
 
-   <!-- New York Military Retirement Full Exemption Test Case -->
-   <!-- Test Case NY-Military-01: Military retiree with full exemption -->
-   <!-- NY provides 100% exemption for military retirement pay -->
-   <!-- NY has progressive tax rates (4% - 10.9%) -->
-   <!-- This test verifies that military retirement is fully excluded from NY taxable income -->
+   <!-- New York military retirement test case (NY-MIL-FULL-01). -->
+   <!-- Pensions of the federal government, including the military, are subtracted in full on -->
+   <!-- IT-201 line 26 (Tax Law 612(c)(3)(ii); 2025 IT-201-I p. 9). The $20,000 pension and annuity -->
+   <!-- exclusion on line 29 is for other pensions and needs age 59 1/2 before January 1, 2025. -->
 
    <id>NY-MIL-FULL-01</id>
    <tax_year>2025</tax_year>
@@ -27,29 +26,33 @@
    <state>NY</state>
    <city>Albany</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $50,000 military retirement (100% exempt in NY) + $40,000 private pension (taxable) = $90,000 AGI -->
-   <!-- Federal AGI: $90,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $75,000 -->
-   <!-- Federal Tax: $11,925 @ 10% = $1,192.50 + $63,075 @ 12% = $7,569.00 = $8,761.50 -->
-   <!--
-   NY Calculation:
-   - NY AGI starts with Federal AGI: $90,000
-   - NY Military Retirement Exclusion: $50,000 (100% exempt)
-   - NY Adjusted AGI: $90,000 - $50,000 = $40,000
-   - NY Standard Deduction: $8,000 (Single, 2025)
-   - NY Taxable Income: $40,000 - $8,000 = $32,000
-   - NY Tax (progressive brackets, approximate for $32,000): ~$1,400
-   - Total Tax: $8,761.50 + $1,400 = $10,161.50
-   - Withholding: $12,000
-   - Refund: $1,838.50
-   -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 5b military retired pay $50,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) + line 5b private pension $40,000 = AGI $90,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $74,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 25,775 = 5,578.50 + 5,670.50 = $11,249.00.
+        Withholding $12,000 less tax $11,249.00 = refund $751.00. -->
+   <!-- New York (2025 Form IT-201): line 19 federal AGI $90,000; line 26 federal (military) pension
+        subtraction $50,000; line 29 pension and annuity exclusion $0 (born 6/12/1975, not 59 1/2);
+        line 33 NY AGI $40,000; line 34 standard deduction $8,000 (Single); line 38 taxable income
+        $32,000; line 39 tax from the 2025 NYS tax table, row $32,000 to $32,050, Single: $1,597
+        (the rate schedule gives 600 + 5.5% x 18,100 = $1,595.50; the table is built on the band
+        midpoint). Line 40 household credit $0 (federal AGI over $28,000). NY tax $1,597.
+        NY_Tax is a #1200 placeholder (10.9% of AGI less $8,000) and computes $3,488; the state
+        check fails until #1200 rebuilds New York. -->
+   <!-- The $40,000 private pension was a <pension_income> tag on the taxpayer, which the mapping does
+        not carry; it is now an income entity of type pension, which Process_Other_Income
+        sums, so the AGI the file always stated is the AGI the rules see. expected_state_tax
+        was an approximate $1,400 (#1330). -->
    <expected_agi>90000</expected_agi>
-   <expected_taxable_income>75000</expected_taxable_income>
-   <expected_total_tax>10161.50</expected_total_tax>
-   <expected_state_tax>1400</expected_state_tax>
-   <expected_refund>1838.50</expected_refund>
+   <expected_taxable_income>74250</expected_taxable_income>
+   <expected_total_tax>11249</expected_total_tax>
+   <expected_state_tax>1597</expected_state_tax>
+   <expected_refund>751</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>
@@ -65,12 +68,23 @@
          <w2_wages>0</w2_wages>
          <w2_withholding>12000</w2_withholding>
          <military_retirement_pay>50000</military_retirement_pay>
-         <pension_income>40000</pension_income>
          <is_senior>false</is_senior>
          <se_gross_income>0</se_gross_income>
          <estimated_payments>0</estimated_payments>
       </taxpayer>
    </taxpayers>
+
+   <!-- The private pension, an income entity (Form 1099-R, Form 1040 line 5b) -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>pension</type>
+         <source>Private employer pension</source>
+         <gross_amount>40000</gross_amount>
+         <is_earned>false</is_earned>
+      </income>
+   </incomes>
 
    <!-- No dependents -->
    <dependents></dependents>

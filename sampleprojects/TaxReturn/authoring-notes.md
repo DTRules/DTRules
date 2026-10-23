@@ -67,6 +67,8 @@
 - 2026-09-13 — delete table `No_State_Income_Tax` from `TaxReturn_dt.xml` — "Only existed as the fallback for the parked non-resident dispatch (#1177)"
 - 2026-09-25 — delete table `Filter_Rental_Property` from `TaxReturn_dt.xml` — "Unreached, and redundant: Process_Rental_Income filters rentals in its own context (#1207)"
 - 2026-10-22 — renamed table MA_Nonresident_Exemption_Ratio -> MA_Exemption_Ratio
+- 2026-10-22 — renamed table UT_Military_Retirement_Exclusion -> UT_Military_Retirement_Credit
+
 
 
 

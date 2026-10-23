@@ -15,10 +15,12 @@
       limitations under the License.
    </copyright>
 
-   <!-- Idaho Military Retirement Test Case -->
-   <!-- Test Case ID-Military-01: Military retirement income with deduction -->
-   <!-- ID provides deduction for military retirement (specific rules vary) -->
-   <!-- This test assumes Idaho's general retirement income deduction applies -->
+   <!-- Idaho military retirement test case (ID-MIL-01). -->
+   <!-- Idaho has no unconditional military retirement exemption. Retired pay is a qualifying benefit -->
+   <!-- for the retirement benefits deduction, Form 39R Part B line 8, when the retiree is 62 or older, -->
+   <!-- disabled, or under 62 and employed with enough income to have to file a federal return -->
+   <!-- (Idaho Code 63-3022A(1)(b); 2025 Form 39R instructions p. 31). The deduction is capped at -->
+   <!-- $48,216 single ($72,324 joint) less Social Security received. The 2025 rate is 5.3% (HB 40). -->
 
    <id>ID-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -26,24 +28,29 @@
    <state>ID</state>
    <city>Boise</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $32,000 military retirement + $38,000 W2 = $70,000 -->
-   <!-- AGI: $70,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $55,000 -->
-   <!-- Federal Tax: ~$6,800 -->
-   <!-- ID: Progressive tax (5.8% top rate for 2025) -->
-   <!-- ID Military Retirement Deduction: Varies (assume partial deduction) -->
-   <!-- ID Taxable Income: ~$62,000 (with deduction) -->
-   <!-- ID Tax (progressive brackets): ~$3,600 -->
-   <!-- Total Tax: $10,400 -->
-   <!-- Withholding: $11,000 -->
-   <!-- Refund: $600 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $38,000 + line 5b military retired pay $32,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $70,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $54,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 5,775 = 5,578.50 + 1,270.50 = $6,849.00.
+        Withholding $11,000 less tax $6,849.00 = refund $4,151.00. -->
+   <!-- Idaho (2025 Form 40): line 7 federal AGI $70,000; Form 39R Part B line 8: qualifies under 62
+        because employed (wages $38,000); 8a cap $48,216; 8e qualifying benefits $32,000; 8f $32,000
+        to line 24 and Form 40 line 10; line 11 Idaho AGI $38,000; line 16 standard deduction $15,750
+        (Idaho conforms to the OBBBA figure, HB 559); line 19 taxable income $22,250; line 20
+        worksheet: ($22,250 - $4,811 zero bracket) x 5.3% = $924.27, rounded on the form to $924.
+        The $155 grocery credit is refundable (line 43) and the $10 permanent building fund tax is a
+        separate tax, so neither is in the income tax figure. Idaho tax $924. -->
+   <!-- expected_state_tax was a guess of $3,600 ("assume partial deduction") at 5.8% (#1330). -->
    <expected_agi>70000</expected_agi>
-   <expected_taxable_income>55000</expected_taxable_income>
-   <expected_total_tax>10400</expected_total_tax>
-   <expected_state_tax>3600</expected_state_tax>
-   <expected_refund>600</expected_refund>
+   <expected_taxable_income>54250</expected_taxable_income>
+   <expected_total_tax>6849</expected_total_tax>
+   <expected_state_tax>924</expected_state_tax>
+   <expected_refund>4151</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>

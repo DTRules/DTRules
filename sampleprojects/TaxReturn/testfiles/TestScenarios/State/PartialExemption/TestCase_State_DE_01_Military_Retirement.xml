@@ -15,12 +15,11 @@
       limitations under the License.
    </copyright>
 
-   <!-- Delaware Military Retirement Test Case -->
-   <!-- Test Case DE-Military-01: Military retirement with $12,500 exclusion under age 60 -->
-   <!-- DE provides: -->
-   <!-- Under age 60: $12,500 exclusion -->
-   <!-- Age 60+: $12,500 + additional $2,000 = $14,500 total -->
-   <!-- This test uses age 57 (born 1968) = $12,500 exemption -->
+   <!-- Delaware military retirement test case (DE-MIL-01). -->
+   <!-- A taxpayer under 60 with a United States military pension excludes the lesser of $12,500 and -->
+   <!-- the pension (PIT-RES line 6 column B; 30 Del. C. 1106(b)(3), $12,500 for 2022 to 2026); at 60 -->
+   <!-- or over the general pension exclusion is the same $12,500 (2025 PIT-RES instructions, Line 6). -->
+   <!-- One pension exclusion per taxpayer. -->
 
    <id>DE-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -28,25 +27,31 @@
    <state>DE</state>
    <city>Dover</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $28,000 military retirement + $40,000 W2 = $68,000 -->
-   <!-- AGI: $68,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $53,000 -->
-   <!-- Federal Tax: ~$6,400 -->
-   <!-- DE: Progressive tax (up to 6.6%) -->
-   <!-- DE Military Retirement Exclusion: $12,500 (under age 60) -->
-   <!-- DE Taxable Retirement: $28,000 - $12,500 = $15,500 -->
-   <!-- DE Taxable Income: $15,500 + $40,000 = $55,500 -->
-   <!-- DE Tax (progressive brackets): ~$3,400 -->
-   <!-- Total Tax: $9,800 -->
-   <!-- Withholding: $10,500 -->
-   <!-- Refund: $700 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $40,000 + line 5b military retired pay $28,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $68,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $52,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 3,775 = 5,578.50 + 830.50 = $6,409.00.
+        Withholding $10,500 less tax $6,409.00 = refund $4,091.00. -->
+   <!-- Delaware (2025 Form PIT-RES): line 1 federal AGI $68,000; line 6 pension exclusion, military,
+        under 60 (born 6/20/1968) = lesser of $12,500 and $28,000 = $12,500; line 12 Delaware AGI
+        $55,500; line 20 standard deduction $3,250 (Filing Status 1); line 23 taxable income $52,250;
+        line 24 tax from the 2025 tax table, row $52,250 to $52,300: $2,515 (rate schedule 1,001.00 +
+        5.55% x 27,250 = $2,513.38); line 27a personal credit $110 x 1; line 33 tax after
+        nonrefundable credits $2,405. Delaware tax $2,405.
+        DE_Tax is a #1200 placeholder (6.6% of AGI less the exclusion and $3,250) and computes
+        $3,448.50; the state check fails until #1200 rebuilds Delaware. -->
+   <!-- expected_state_tax was an approximate $3,400; the heading's "age 60+: $12,500 + $2,000" was wrong,
+        the general exclusion at 60 is $12,500 and a taxpayer gets one exclusion (#1330). -->
    <expected_agi>68000</expected_agi>
-   <expected_taxable_income>53000</expected_taxable_income>
-   <expected_total_tax>9800</expected_total_tax>
-   <expected_state_tax>3400</expected_state_tax>
-   <expected_refund>700</expected_refund>
+   <expected_taxable_income>52250</expected_taxable_income>
+   <expected_total_tax>6409</expected_total_tax>
+   <expected_state_tax>2405</expected_state_tax>
+   <expected_refund>4091</expected_refund>
 
    <!-- Retired Military Taxpayer (Age 57) -->
    <taxpayers>

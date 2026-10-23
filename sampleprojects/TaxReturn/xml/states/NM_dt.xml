@@ -7,7 +7,7 @@
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:47d6a181a58c01f54c6944ba5262ed8326fc0435514d8c6814b7f6b474a788bb</source_hash>
+<source_hash>sha256:22845d5cb5e376be034b5df170b5b907ef7efd774f9a9db9eec039dc42e299ea</source_hash>
 </source>
 <table_name>nm_tax</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.nm_limit_1 = nm_single_bracket_1_limit; set result.nm_limit_2 = nm_single_bracket_2_limit; set result.nm_limit_3 = nm_single_bracket_3_limit; set result.nm_limit_4 = nm_single_bracket_4_limit; set result.nm_high_base = nm_single_high_base; set result.nm_top_threshold = nm_single_bracket_5_limit; set result.nm_top_base = nm_single_top_base; set result.nm_lmi_limit = nm_lmi_limit_single; set result.nm_lmi_base = nm_lmi_base_single; set result.nm_lmi_rate = nm_lmi_rate_single; set result.nm_dependent_deduction = 0.0</initial_action_dsl>
+<initial_action_dsl>set result.nm_limit_1 = nm_single_bracket_1_limit; set result.nm_limit_2 = nm_single_bracket_2_limit; set result.nm_limit_3 = nm_single_bracket_3_limit; set result.nm_limit_4 = nm_single_bracket_4_limit; set result.nm_high_base = nm_single_high_base; set result.nm_top_threshold = nm_single_bracket_5_limit; set result.nm_top_base = nm_single_top_base; set result.nm_lmi_limit = nm_lmi_limit_single; set result.nm_lmi_base = nm_lmi_base_single; set result.nm_lmi_rate = nm_lmi_rate_single; set result.nm_dependent_deduction = 0.0; set result.nm_military_retirement_exclusion = 0.0; perform NM_Military_Retirement_Exclusion</initial_action_dsl>
 <initial_action_postfix>
-nm_single_bracket_1_limit cvd /result.nm_limit_1 xdef nm_single_bracket_2_limit cvd /result.nm_limit_2 xdef nm_single_bracket_3_limit cvd /result.nm_limit_3 xdef nm_single_bracket_4_limit cvd /result.nm_limit_4 xdef nm_single_high_base cvd /result.nm_high_base xdef nm_single_bracket_5_limit cvd /result.nm_top_threshold xdef nm_single_top_base cvd /result.nm_top_base xdef nm_lmi_limit_single cvd /result.nm_lmi_limit xdef nm_lmi_base_single cvd /result.nm_lmi_base xdef nm_lmi_rate_single cvd /result.nm_lmi_rate xdef 0.0 cvd /result.nm_dependent_deduction xdef
+nm_single_bracket_1_limit cvd /result.nm_limit_1 xdef nm_single_bracket_2_limit cvd /result.nm_limit_2 xdef nm_single_bracket_3_limit cvd /result.nm_limit_3 xdef nm_single_bracket_4_limit cvd /result.nm_limit_4 xdef nm_single_high_base cvd /result.nm_high_base xdef nm_single_bracket_5_limit cvd /result.nm_top_threshold xdef nm_single_top_base cvd /result.nm_top_base xdef nm_lmi_limit_single cvd /result.nm_lmi_limit xdef nm_lmi_base_single cvd /result.nm_lmi_base xdef nm_lmi_rate_single cvd /result.nm_lmi_rate xdef 0.0 cvd /result.nm_dependent_deduction xdef 0.0 cvd /result.nm_military_retirement_exclusion xdef /NM_Military_Retirement_Exclusion performtable
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -93,10 +93,10 @@ result.standard_deduction cvd /result.nm_std_deduction xdef job.taxpayers length
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>Line 17 taxable income; line 18 tax from the rate table</action_comment>
-<action_dsl>set result.nm_taxable_income = the maximum of (result.state_calc_agi - result.nm_std_deduction - result.nm_dependent_deduction - result.nm_lmi_exemption) and 0.0; perform NM_Tax_Table; set result.nm_tax = result.nm_table_tax</action_dsl>
+<action_comment>Line 15 PIT-ADJ exemptions (armed forces retirement pay, line 24); line 17 taxable income; line 18 tax from the rate table</action_comment>
+<action_dsl>set result.nm_taxable_income = the maximum of (result.state_calc_agi - result.nm_military_retirement_exclusion - result.nm_std_deduction - result.nm_dependent_deduction - result.nm_lmi_exemption) and 0.0; perform NM_Tax_Table; set result.nm_tax = result.nm_table_tax</action_dsl>
 <action_postfix>
-result.state_calc_agi result.nm_std_deduction f- result.nm_dependent_deduction f- result.nm_lmi_exemption f- 0.0 fmax cvd /result.nm_taxable_income xdef /NM_Tax_Table performtable result.nm_table_tax cvd /result.nm_tax xdef
+result.state_calc_agi result.nm_military_retirement_exclusion f- result.nm_std_deduction f- result.nm_dependent_deduction f- result.nm_lmi_exemption f- 0.0 fmax cvd /result.nm_taxable_income xdef /NM_Tax_Table performtable result.nm_table_tax cvd /result.nm_tax xdef
 </action_postfix>
 <columns>XXXX</columns>
 </action_details>
@@ -112,9 +112,9 @@ result.nm_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <action_details>
 <action_number>7</action_number>
 <action_comment>Audit</action_comment>
-<action_dsl>add "  New Mexico (PIT-1 2025): taxable income $" + result.nm_taxable_income + " (standard deduction $" + result.nm_std_deduction + ", dependents $" + result.nm_dependent_deduction + ", low/middle-income exemption $" + result.nm_lmi_exemption + "), tax $" + result.nm_tax to job.audit_trail</action_dsl>
+<action_dsl>add "  New Mexico (PIT-1 2025): taxable income $" + result.nm_taxable_income + " (armed forces retirement pay exemption $" + result.nm_military_retirement_exclusion + ", standard deduction $" + result.nm_std_deduction + ", dependents $" + result.nm_dependent_deduction + ", low/middle-income exemption $" + result.nm_lmi_exemption + "), tax $" + result.nm_tax to job.audit_trail</action_dsl>
 <action_postfix>
-"  New Mexico (PIT-1 2025): taxable income $" result.nm_taxable_income strconcat " (standard deduction $" strconcat result.nm_std_deduction strconcat ", dependents $" strconcat result.nm_dependent_deduction strconcat ", low/middle-income exemption $" strconcat result.nm_lmi_exemption strconcat "), tax $" strconcat result.nm_tax strconcat job.audit_trail swap addto
+"  New Mexico (PIT-1 2025): taxable income $" result.nm_taxable_income strconcat " (armed forces retirement pay exemption $" strconcat result.nm_military_retirement_exclusion strconcat ", standard deduction $" strconcat result.nm_std_deduction strconcat ", dependents $" strconcat result.nm_dependent_deduction strconcat ", low/middle-income exemption $" strconcat result.nm_lmi_exemption strconcat "), tax $" strconcat result.nm_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>XXXX</columns>
 </action_details>
@@ -128,7 +128,7 @@ result.nm_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:47d6a181a58c01f54c6944ba5262ed8326fc0435514d8c6814b7f6b474a788bb</source_hash>
+<source_hash>sha256:22845d5cb5e376be034b5df170b5b907ef7efd774f9a9db9eec039dc42e299ea</source_hash>
 </source>
 <table_name>NM_Military_Retirement_Exclusion</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -137,11 +137,49 @@ result.nm_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <COMMENTS>New Mexico military retirement exclusion calculation. NM allows up to $30,000 exemption on military retirement pay for 2025-2026. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card. Skeleton table: needs authorship. Conditions/actions intentionally empty pending follow-up; nm_military_retirement_exemption is declared in NM_edd.xml but exclusion logic is not wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>43101</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
 <initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer is an armed forces retiree with retirement pay in net income</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YN</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Schedule PIT-ADJ line 24: $30,000 of armed forces retirement pay per qualifying retiree (Section 7-2-5.13 NMSA 1978)</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and nm_military_retirement_exemption to result.nm_military_retirement_exclusion</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay nm_military_retirement_exemption fmin cvd result.nm_military_retirement_exclusion f+ /result.nm_military_retirement_exclusion xdef
+</action_postfix>
+<columns>X-</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Exemption for armed forces retirement pay, Schedule PIT-ADJ line 24 -&gt; PIT-1 line 15: the lesser of the pay and $30,000 per armed forces retiree or surviving spouse (Section 7-2-5.13 NMSA 1978 as amended by 2024 SB 56; 2025 PIT-ADJ instructions). No age or residency-date limit.</policy_description>
+<policy_statement_postfix>"Exemption for armed forces retirement pay, Schedule PIT-ADJ line 24 -&gt; PIT-1 line 15: the lesser of the pay and $30,000 per armed forces retiree or surviving spouse (Section 7-2-5.13 NMSA 1978 as amended by 2024 SB 56; 2025 PIT-ADJ instructions). No age or residency-date limit."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No armed forces retirement pay for this taxpayer.</policy_description>
+<policy_statement_postfix>"No armed forces retirement pay for this taxpayer."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 43110: NM_Tax_Table -->
@@ -150,7 +188,7 @@ result.nm_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:47d6a181a58c01f54c6944ba5262ed8326fc0435514d8c6814b7f6b474a788bb</source_hash>
+<source_hash>sha256:22845d5cb5e376be034b5df170b5b907ef7efd774f9a9db9eec039dc42e299ea</source_hash>
 </source>
 <table_name>NM_Tax_Table</table_name>
 <xls_file>NM.xlsx</xls_file>

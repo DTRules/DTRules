@@ -7,7 +7,7 @@
 		<source>
 			<relative_path>VA.xlsx</relative_path>
 			<file_name>VA.xlsx</file_name>
-			<sheet_number>2</sheet_number>
+			<sheet_number>3</sheet_number>
 		</source>
 		<field name="va_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3000.0" comment="VA tax bracket 1 upper limit (2025)"></field>
 		<field name="va_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="VA tax rate for bracket 1 - 2% (2025)"></field>
@@ -16,7 +16,8 @@
 		<field name="va_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="17000.0" comment="VA tax bracket 3 upper limit (2025)"></field>
 		<field name="va_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.05" comment="VA tax rate for bracket 3 - 5% (2025)"></field>
 		<field name="va_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.0575" comment="VA tax rate for bracket 4 (income &gt; $17,000) - 5.75% (2025)"></field>
-		<field name="va_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="40000.0" comment="VA military retirement exemption amount (2025). Source: MOAA State Report Card"></field>
+		<field name="va_military_benefits_subtraction" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Virginia Schedule ADJ subtraction code 60, Military Benefits Subtraction: up to $40,000 of military retirement income per individual, any age, for taxable years from 2025 (Va. Code 58.1-322.02(18); 2025 Form 760 instructions p. 20). Computed per taxpayer by VA_Military_Benefits_Subtraction (#1330)."></field>
+		<field name="va_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="40000.0" comment="VA military benefits subtraction cap per individual: $40,000 for taxable year 2025 and after, any age (the age-55 test applied only to 2022-2024). Va. Code 58.1-322.02(18)(c),(d); 2025 Form 760 instructions, Schedule ADJ code 60."></field>
 		<field name="va_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="VA taxable military retirement after exemption (computed)"></field>
 		<field name="va_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="8750.0" comment="VA standard deduction head of household (2025)"></field>
 		<field name="va_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="17500.0" comment="VA standard deduction married filing jointly (2025)"></field>

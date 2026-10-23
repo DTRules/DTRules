@@ -7,7 +7,7 @@
 <relative_path>MD.xlsx</relative_path>
 <file_name>MD.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:43d7ec589460f2b7989858d029f260eb28e9d819d124b723b811b6784818d34d</source_hash>
+<source_hash>sha256:9be782c85a9f4d2be1de210203b16a641276a1730e05fc35d480508c8fb7a382</source_hash>
 </source>
 <table_name>MD_Tax</table_name>
 <xls_file>MD.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Maryland Tax Calculation (top marginal 5.75%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Maryland Tax Calculation (top marginal 5.75%)" to job.audit_trail; set result.md_military_retirement_subtraction = 0.0; perform MD_Military_Retirement_Subtraction; add "  MD Form 502SU code u military retirement subtraction: $" + result.md_military_retirement_subtraction to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Maryland Tax Calculation (top marginal 5.75%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Maryland Tax Calculation (top marginal 5.75%)" job.audit_trail swap addto 0.0 cvd /result.md_military_retirement_subtraction xdef /MD_Military_Retirement_Subtraction performtable "  MD Form 502SU code u military retirement subtraction: $" result.md_military_retirement_subtraction strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -49,27 +49,27 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $5,150 std ded, 5.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 5150.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.md_military_retirement_subtraction - 5150.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.state_calc_agi 5150.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.md_military_retirement_subtraction f- 5150.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $2,550 std ded, 5.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 2550.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.md_military_retirement_subtraction - 2550.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.state_calc_agi 2550.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.md_military_retirement_subtraction f- 2550.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $2,550 std ded, 5.75%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 2550.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.md_military_retirement_subtraction - 2550.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.state_calc_agi 2550.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.md_military_retirement_subtraction f- 2550.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -86,6 +86,88 @@ result.state_calc_agi 2550.0 f- 0.0 fmax cvd /result.computed_state_taxable_inco
 <policy_statement column="3">
 <policy_description>MD Single/MFS: 5.75% x max(AGI - $2,550, 0) per Md. Code, Tax-Gen. § 10-105</policy_description>
 <policy_statement_postfix>"MD Single/MFS: 5.75% x max(AGI - $2,550, 0) per Md. Code, Tax-Gen. § 10-105"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 52413: MD_Military_Retirement_Subtraction -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>MD.xlsx</relative_path>
+<file_name>MD.xlsx</file_name>
+<sheet_number>2</sheet_number>
+<source_hash>sha256:9be782c85a9f4d2be1de210203b16a641276a1730e05fc35d480508c8fb7a382</source_hash>
+</source>
+<table_name>MD_Military_Retirement_Subtraction</table_name>
+<xls_file>MD.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>52413</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+dup taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The taxpayer has military retirement income</condition_comment>
+<condition_dsl>taxpayer.military_retirement_pay &gt; 0</condition_dsl>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 f&gt;
+</condition_postfix>
+<columns>YYN</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>At least 55 on the last day of the taxable year</condition_comment>
+<condition_dsl>job.tax_year - (get yearof taxpayer.date_of_birth) &gt;= 55</condition_dsl>
+<condition_postfix>
+job.tax_year taxpayer.date_of_birth yearof - 55 &gt;=
+</condition_postfix>
+<columns>YN-</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Form 502SU code u: up to $20,000 at 55 and over</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and md_military_retirement_exemption_55_plus to result.md_military_retirement_subtraction</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay md_military_retirement_exemption_55_plus fmin cvd result.md_military_retirement_subtraction f+ /result.md_military_retirement_subtraction xdef
+</action_postfix>
+<columns>X--</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Form 502SU code u: up to $12,500 under 55</action_comment>
+<action_dsl>add the minimum of taxpayer.military_retirement_pay and md_military_retirement_exemption_under_55 to result.md_military_retirement_subtraction</action_dsl>
+<action_postfix>
+taxpayer.military_retirement_pay md_military_retirement_exemption_under_55 fmin cvd result.md_military_retirement_subtraction f+ /result.md_military_retirement_subtraction xdef
+</action_postfix>
+<columns>-X-</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Military retirement income subtraction, Form 502SU code u: up to $20,000 for an individual at least 55 on the last day of the year (2025 Resident Booklet, Instruction 13; Tax-General 10-207(q)).</policy_description>
+<policy_statement_postfix>"Military retirement income subtraction, Form 502SU code u: up to $20,000 for an individual at least 55 on the last day of the year (2025 Resident Booklet, Instruction 13; Tax-General 10-207(q))."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Form 502SU code u: up to $12,500 for an individual under 55.</policy_description>
+<policy_statement_postfix>"Form 502SU code u: up to $12,500 for an individual under 55."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>No military retirement income for this taxpayer.</policy_description>
+<policy_statement_postfix>"No military retirement income for this taxpayer."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

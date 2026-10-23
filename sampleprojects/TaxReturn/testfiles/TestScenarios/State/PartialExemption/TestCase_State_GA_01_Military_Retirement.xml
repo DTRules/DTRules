@@ -15,12 +15,12 @@
       limitations under the License.
    </copyright>
 
-   <!-- Georgia Military Retirement Test Case -->
-   <!-- Test Case GA-Military-01: Military retiree age 62+ ($35,000 exemption) -->
-   <!-- GA provides age-based retirement income exclusions: -->
-   <!-- Age 62-64: $35,000 -->
-   <!-- Age 65+: $65,000 -->
-   <!-- This test uses age 63 (born 1962) = $35,000 exemption -->
+   <!-- Georgia military retirement test case (GA-MIL-01). -->
+   <!-- Under 62 Georgia excludes up to $17,500 of military retirement income, plus $17,500 more when -->
+   <!-- Georgia earned income exceeds $17,500 (Form 500 Schedule 1 line 7b; O.C.G.A. 48-7-27(a)(5.1)). -->
+   <!-- At 62 to 64 the retirement income exclusion applies instead, up to $35,000 of taxable pensions -->
+   <!-- and other unearned income plus up to $5,000 of earned income; $65,000 at 65 or older (Schedule 1 -->
+   <!-- line 7a; O.C.G.A. 48-7-27(a)(5); 2025 IT-511 p. 20-21). The 2025 rate is a flat 5.19% (HB 111). -->
 
    <id>GA-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -28,25 +28,29 @@
    <state>GA</state>
    <city>Atlanta</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $40,000 military retirement + $30,000 W2 = $70,000 -->
-   <!-- AGI: $70,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $55,000 -->
-   <!-- Federal Tax: ~$6,800 -->
-   <!-- GA: Progressive tax (5.49% flat for 2025) -->
-   <!-- GA Military Retirement Exemption: $35,000 (age 62-64) -->
-   <!-- GA Taxable Retirement: $40,000 - $35,000 = $5,000 -->
-   <!-- GA Taxable Income: $5,000 + $30,000 = $35,000 -->
-   <!-- GA Tax: $35,000 * 0.0549 = $1,922 -->
-   <!-- Total Tax: $8,722 -->
-   <!-- Withholding: $9,500 -->
-   <!-- Refund: $778 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $30,000 + line 5b military retired pay $40,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $70,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $54,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 5,775 = 5,578.50 + 1,270.50 = $6,849.00.
+        Withholding $9,500 less tax $6,849.00 = refund $2,651.00. -->
+   <!-- Georgia (2025 Form 500): line 8 federal AGI $70,000; Schedule 1 line 7a retirement income
+        exclusion at age 63 (born 4/25/1962): earned income lesser of $30,000 and $5,000 = $5,000, plus
+        taxable pensions $40,000 = $45,000, capped at $35,000; line 7b military exclusion $0 (under 62
+        only); line 10 Georgia AGI $35,000; line 11 standard deduction $12,000 (Single, 2025; no
+        personal exemption, line 6 is reserved); line 15 taxable income $23,000; line 16 tax 5.19% =
+        $1,193.70, rounded on the form to $1,194. No automatic credits. Georgia tax $1,194. -->
+   <!-- expected_state_tax was $1,922, 5.49% (a rate Georgia never had) of $35,000 with the $12,000
+        standard deduction left out (#1330). -->
    <expected_agi>70000</expected_agi>
-   <expected_taxable_income>55000</expected_taxable_income>
-   <expected_total_tax>8722</expected_total_tax>
-   <expected_state_tax>1922</expected_state_tax>
-   <expected_refund>778</expected_refund>
+   <expected_taxable_income>54250</expected_taxable_income>
+   <expected_total_tax>6849</expected_total_tax>
+   <expected_state_tax>1194</expected_state_tax>
+   <expected_refund>2651</expected_refund>
 
    <!-- Retired Military Taxpayer (Age 63) -->
    <taxpayers>

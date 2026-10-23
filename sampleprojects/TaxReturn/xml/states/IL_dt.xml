@@ -7,7 +7,7 @@
 <relative_path>IL.xlsx</relative_path>
 <file_name>IL.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:e5d435a8fd0b95613088683a4961810230df3cb35a8aea7b045d8e7ccfbcb02d</source_hash>
+<source_hash>sha256:8eb8308bda363c6b6af34c9756b369fe0b9df5a3ba1b2857d7144ea39d8c3d52</source_hash>
 </source>
 <table_name>il_tax</table_name>
 <xls_file>IL.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail; set result.il_military_retirement_exclusion = result.military_retirement_income; set result.il_adjusted_agi = the maximum of (result.state_calc_agi - result.il_military_retirement_exclusion) and 0.0; add "  IL-1040 line 5 retirement subtraction (military retired pay): $" + result.il_military_retirement_exclusion to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.il_state_tax xdef 0 cvd /result.il_taxable_income xdef 0 cvd /result.il_total_exemptions xdef "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" job.audit_trail swap addto
+0 cvd /result.il_state_tax xdef 0 cvd /result.il_taxable_income xdef 0 cvd /result.il_total_exemptions xdef "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" job.audit_trail swap addto result.military_retirement_income cvd /result.il_military_retirement_exclusion xdef result.state_calc_agi result.il_military_retirement_exclusion f- 0.0 fmax cvd /result.il_adjusted_agi xdef "  IL-1040 line 5 retirement subtraction (military retired pay): $" result.il_military_retirement_exclusion strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -39,10 +39,10 @@ true
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>IL exemptions = $2,850 x (taxpayers + dependents); tax = 4.95% x max(AGI - exemptions, 0)</action_comment>
-<action_dsl>set result.il_total_exemptions = (length of job.taxpayers + length of job.dependents) * il_personal_exemption; set result.il_taxable_income = the maximum of (result.state_calc_agi - result.il_total_exemptions) and 0.0; set result.il_state_tax = result.il_taxable_income * il_tax_rate; add "  IL exemptions ($2,850 per person): $" + result.il_total_exemptions to job.audit_trail; add "  IL state tax (4.95%): $" + result.il_state_tax to job.audit_trail</action_dsl>
+<action_comment>IL-1040: base income (line 9) is federal AGI less the line 5 retirement subtraction; exemptions $2,850 per person (line 10); tax 4.95% (line 12)</action_comment>
+<action_dsl>set result.il_total_exemptions = (length of job.taxpayers + length of job.dependents) * il_personal_exemption; set result.il_taxable_income = the maximum of (result.il_adjusted_agi - result.il_total_exemptions) and 0.0; set result.il_state_tax = result.il_taxable_income * il_tax_rate; add "  IL exemptions ($2,850 per person): $" + result.il_total_exemptions to job.audit_trail; add "  IL state tax (4.95%): $" + result.il_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /result.il_total_exemptions xdef result.state_calc_agi result.il_total_exemptions f- 0.0 fmax cvd /result.il_taxable_income xdef result.il_taxable_income il_tax_rate fmul cvd /result.il_state_tax xdef "  IL exemptions ($2,850 per person): $" result.il_total_exemptions strconcat job.audit_trail swap addto "  IL state tax (4.95%): $" result.il_state_tax strconcat job.audit_trail swap addto
+job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /result.il_total_exemptions xdef result.il_adjusted_agi result.il_total_exemptions f- 0.0 fmax cvd /result.il_taxable_income xdef result.il_taxable_income il_tax_rate fmul cvd /result.il_state_tax xdef "  IL exemptions ($2,850 per person): $" result.il_total_exemptions strconcat job.audit_trail swap addto "  IL state tax (4.95%): $" result.il_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -58,8 +58,8 @@ result.il_taxable_income cvd /result.computed_state_taxable_income xdef result.i
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>IL flat tax: 4.95% x max(AGI - $2,850 x #people, 0)</policy_description>
-<policy_statement_postfix>"IL flat tax: 4.95% x max(AGI - $2,850 x #people, 0)"</policy_statement_postfix>
+<policy_description>Illinois flat 4.95% on federal AGI less the IL-1040 line 5 subtraction of federally taxed retirement income, which includes military retired pay in full (2025 IL-1040 instructions; Pub. 120; 35 ILCS 5/203(a)(2)(F)), less $2,850 per exemption.</policy_description>
+<policy_statement_postfix>"Illinois flat 4.95% on federal AGI less the IL-1040 line 5 subtraction of federally taxed retirement income, which includes military retired pay in full (2025 IL-1040 instructions; Pub. 120; 35 ILCS 5/203(a)(2)(F)), less $2,850 per exemption."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

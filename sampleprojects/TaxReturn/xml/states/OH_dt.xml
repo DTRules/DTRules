@@ -7,7 +7,7 @@
 <relative_path>OH.xlsx</relative_path>
 <file_name>OH.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:36b2f349dfd4da5429f34da336d80f52afe98e0a56bb0711b1f438a959ae4c2f</source_hash>
+<source_hash>sha256:7018b2af3a3e9e6903383b9d689d4ce7767c2bf4699df0893c6ae68413e9f733</source_hash>
 </source>
 <table_name>OH_Tax</table_name>
 <xls_file>OH.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Ohio Tax Calculation (top marginal 3.5%)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Ohio Tax Calculation (top marginal 3.5%)" to job.audit_trail; set result.oh_military_retirement_deduction = result.military_retirement_income; add "  OH Schedule of Adjustments line 34 uniformed services retirement income: $" + result.oh_military_retirement_deduction to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Ohio Tax Calculation (top marginal 3.5%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Ohio Tax Calculation (top marginal 3.5%)" job.audit_trail swap addto result.military_retirement_income cvd /result.oh_military_retirement_deduction xdef "  OH Schedule of Adjustments line 34 uniformed services retirement income: $" result.oh_military_retirement_deduction strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -40,9 +40,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>OH tax = max(AGI - $0, 0) x 3.5%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.035</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - result.oh_military_retirement_deduction) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.035</action_dsl>
 <action_postfix>
-result.state_calc_agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.035 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi result.oh_military_retirement_deduction f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.035 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>

@@ -15,10 +15,10 @@
       limitations under the License.
    </copyright>
 
-   <!-- Vermont Military Retirement Test Case -->
-   <!-- Test Case VT-Military-01: Military retirement with income-based exclusion -->
-   <!-- VT provides income-based exclusion for military retirement -->
-   <!-- Specific rules vary based on AGI thresholds -->
+   <!-- Vermont military retirement test case (VT-MIL-01). -->
+   <!-- Act 71 of 2025 (32 V.S.A. 5830e(d)) exempts all federally taxable military retirement and -->
+   <!-- survivor benefit income when federal AGI is $125,000 or less, any filing status, phased out to -->
+   <!-- nothing at $175,000: Schedule IN-112 Part I line 13 (2025 IN-112 instructions p. 3-4). -->
 
    <id>VT-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -26,25 +26,31 @@
    <state>VT</state>
    <city>Burlington</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $35,000 military retirement + $40,000 W2 = $75,000 -->
-   <!-- AGI: $75,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $60,000 -->
-   <!-- Federal Tax: ~$7,900 -->
-   <!-- VT: Progressive tax (3.35% to 8.75%) -->
-   <!-- VT Military Retirement Exclusion: Varies by income -->
-   <!-- Assume partial exemption based on VT rules -->
-   <!-- VT Taxable Income: ~$67,000 (after deductions) -->
-   <!-- VT Tax (progressive brackets): ~$4,200 -->
-   <!-- Total Tax: $12,100 -->
-   <!-- Withholding: $12,800 -->
-   <!-- Refund: $700 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $40,000 + line 5b military retired pay $35,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $75,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $59,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 10,775 = 5,578.50 + 2,370.50 = $7,949.00.
+        Withholding $12,800 less tax $7,949.00 = refund $4,851.00. -->
+   <!-- Vermont (2025 Form IN-111): line 1 federal AGI $75,000; IN-112 Part I line 13 military
+        retirement income exemption $35,000 (AGI within $125,000, full); line 3 $40,000; line 4 standard
+        deduction $7,650 (Single, 2025); line 5e personal exemption $5,300 x 1; line 7 Vermont taxable
+        income $27,050; line 8 tax: taxable income under $75,000 reads the 2025 tax table, row $27,000
+        to $27,100, Single: $906 (rate schedule 3.35% x 27,050 = $906.18). No automatic credits.
+        Vermont tax $906.
+        VT_Tax is a #1200 placeholder (8.75% of AGI less the exemption and $7,400) and computes
+        $2,852.50; the state check fails until #1200 rebuilds Vermont. -->
+   <!-- expected_state_tax was a guess of $4,200 under a partial exemption; for 2025 the exemption is
+        total at this income (#1330). -->
    <expected_agi>75000</expected_agi>
-   <expected_taxable_income>60000</expected_taxable_income>
-   <expected_total_tax>12100</expected_total_tax>
-   <expected_state_tax>4200</expected_state_tax>
-   <expected_refund>700</expected_refund>
+   <expected_taxable_income>59250</expected_taxable_income>
+   <expected_total_tax>7949</expected_total_tax>
+   <expected_state_tax>906</expected_state_tax>
+   <expected_refund>4851</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>

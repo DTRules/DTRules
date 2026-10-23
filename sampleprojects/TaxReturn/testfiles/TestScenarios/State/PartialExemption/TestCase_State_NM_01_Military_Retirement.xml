@@ -15,9 +15,10 @@
       limitations under the License.
    </copyright>
 
-   <!-- New Mexico Military Retirement Test Case -->
-   <!-- Test Case NM-Military-01: Military retirement ($30,000 exemption) -->
-   <!-- NM provides flat $30,000 exemption for military retirement (2025) -->
+   <!-- New Mexico military retirement test case (NM-MIL-01). -->
+   <!-- Each armed forces retiree exempts $30,000 of armed forces retirement pay, Schedule PIT-ADJ -->
+   <!-- line 24 (Section 7-2-5.13 NMSA 1978 as amended by 2024 SB 56; 2025 PIT-ADJ instructions). -->
+   <!-- No age or residency-date limit. -->
 
    <id>NM-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -25,25 +26,28 @@
    <state>NM</state>
    <city>Albuquerque</city>
 
-   <!-- Expected values for validation (2025) -->
-   <!-- Income: $48,000 military retirement + $40,000 W2 = $88,000 -->
-   <!-- AGI: $88,000 -->
-   <!-- Federal Standard Deduction: $15,000 (Single) -->
-   <!-- Federal Taxable Income: $73,000 -->
-   <!-- Federal Tax: ~$10,200 -->
-   <!-- NM: Progressive tax (up to 5.9%) -->
-   <!-- NM Military Retirement Exemption: $30,000 -->
-   <!-- NM Taxable Retirement: $48,000 - $30,000 = $18,000 -->
-   <!-- NM Taxable Income: $18,000 + $40,000 = $58,000 -->
-   <!-- NM Tax (progressive brackets): ~$3,200 -->
-   <!-- Total Tax: $13,400 -->
-   <!-- Withholding: $14,500 -->
-   <!-- Refund: $1,100 -->
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms,
+        never from what the rules print (#1330). expected_total_tax is the federal tax (Form 1040 line 24); the state's own tax is
+        checked separately through expected_state_tax, and expected_refund is
+        withholding less the federal tax. -->
+   <!-- Federal (2025 Form 1040): line 1a wages $40,000 + line 5b military retired pay $48,000 (taxable: IRC 61(a)(10); Pub. 525,
+        Military retirement pay) = AGI $88,000.
+        Standard deduction $15,750 (Single, 2025, OBBBA).
+        Taxable income $72,250.
+        Tax (2025 Single brackets): 1,192.50 + 12% x 36,550 + 22% x 23,775 = 5,578.50 + 5,230.50 = $10,809.00.
+        Withholding $14,500 less tax $10,809.00 = refund $3,691.00. -->
+   <!-- New Mexico (2025 Form PIT-1): line 9 federal AGI $88,000; line 12 federal standard deduction
+        $15,750; line 14 low- and middle-income exemption $0 (AGI over $36,667); line 15 PIT-ADJ line
+        24 armed forces retirement pay exemption = lesser of $48,000 and $30,000 = $30,000; line 17
+        taxable income $42,250; line 18 tax from the 2025 PIT-1 tax rate table, row $42,200 to $42,300,
+        Single: $1,577 (rate schedule 1,165.50 + 4.7% x 8,750 = $1,576.75; the table uses the band
+        midpoint). No credits. New Mexico tax $1,577. -->
+   <!-- expected_state_tax was an approximate $3,200 with the $15,750 standard deduction left out (#1330). -->
    <expected_agi>88000</expected_agi>
-   <expected_taxable_income>73000</expected_taxable_income>
-   <expected_total_tax>13400</expected_total_tax>
-   <expected_state_tax>3200</expected_state_tax>
-   <expected_refund>1100</expected_refund>
+   <expected_taxable_income>72250</expected_taxable_income>
+   <expected_total_tax>10809</expected_total_tax>
+   <expected_state_tax>1577</expected_state_tax>
+   <expected_refund>3691</expected_refund>
 
    <!-- Retired Military Taxpayer -->
    <taxpayers>
