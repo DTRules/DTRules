@@ -148,3 +148,70 @@ func TestMilitaryRetirementScenarios(t *testing.T) {
 		})
 	}
 }
+
+// TestMilitaryRetirementNotSubtractedForNonresident runs the two Florida
+// residents with Virginia and Georgia wages (MultiState 20 and 21) twice, as
+// written and with the military_retirement_pay line removed. A nonresident
+// entry's income is built from the income entities, so the pension is not in
+// it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement
+// income at all; the state's military subtraction must therefore leave the
+// nonresident entry's tax unchanged while the pension still raises the
+// resident's AGI by $30,000 (#1330 review, finding 1).
+func TestMilitaryRetirementNotSubtractedForNonresident(t *testing.T) {
+	rs, xmlDir := loadTaxReturn(t)
+	const pension = "         <military_retirement_pay>30000</military_retirement_pay>\n"
+	for _, sc := range []struct{ file, state string }{
+		{"TestCase_MultiState_20_FL_VA_Military_Nonresident.xml", "VA"},
+		{"TestCase_MultiState_21_FL_GA_Military_Nonresident.xml", "GA"},
+	} {
+		t.Run(sc.file, func(t *testing.T) {
+			path := filepath.Join(xmlDir, "..", "testfiles", "TestScenarios", "MultiState", sc.file)
+			src, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if strings.Count(string(src), pension) != 1 {
+				t.Fatalf("scenario should carry the pension line once")
+			}
+			with := runMultiStateScenario(t, rs, xmlDir, src)
+			without := runMultiStateScenario(t, rs, xmlDir, []byte(strings.Replace(string(src), pension, "", 1)))
+			if auditHasFailure(with) {
+				t.Errorf("the rules' own validation reported a FAIL line:\n%s", strings.Join(auditTrailLines(with), "\n"))
+			}
+			agiWith, _ := resultDouble(with, "agi")
+			agiWithout, _ := resultDouble(without, "agi")
+			if math.Abs((agiWith-agiWithout)-30000) > 0.5 {
+				t.Errorf("AGI $%.2f with the pension, $%.2f without; the pension should add $30,000", agiWith, agiWithout)
+			}
+			taxWith, ok1 := nonresidentRosterTax(with, sc.state)
+			taxWithout, ok2 := nonresidentRosterTax(without, sc.state)
+			if !ok1 || !ok2 {
+				t.Fatalf("no %s entry on job.state_tax_results", sc.state)
+			}
+			if taxWith != taxWithout {
+				t.Errorf("%s nonresident tax $%.2f with the pension, $%.2f without; the pension is not %s-source income and must not be subtracted from it",
+					sc.state, taxWith, taxWithout, sc.state)
+			}
+		})
+	}
+}
+
+// TestIdahoRetirementBenefitsCapOrder holds ID_02 to Form 39R Part B line 8:
+// the cap is reduced by Social Security first (8d = 48,216 - 20,000 = 28,216)
+// and the deduction is then the smaller of 8d and the benefits ($30,000), so
+// $28,216, not the $10,000 that min(pay, cap) less Social Security would give
+// (#1330 review, finding 2).
+func TestIdahoRetirementBenefitsCapOrder(t *testing.T) {
+	rs, xmlDir := loadTaxReturn(t)
+	path := filepath.Join(xmlDir, "..", "testfiles", "TestScenarios", "State", "PartialExemption",
+		"TestCase_State_ID_02_Military_Retirement_Social_Security.xml")
+	src, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	state := runScenarioForStateTaxCheck(t, rs, xmlDir, src)
+	got, ok := resultDouble(state, "id_military_retirement_exemption")
+	if !ok || math.Abs(got-28216) > 0.5 {
+		t.Errorf("Idaho retirement benefits deduction $%.2f, Form 39R line 8f works out $28,216", got)
+	}
+}

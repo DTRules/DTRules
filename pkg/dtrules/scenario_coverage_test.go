@@ -49,8 +49,10 @@ const (
 	// subtraction: the IL, CO, GA, ID, KY, NM and two UT military-retirement
 	// scenarios come clean, and the six MultiState CO and UT scenarios with
 	// them, because CO_Tax now starts from federal taxable income and ut_tax
-	// takes Utah's credits: 345 + 14.
-	scenariosCleanFloor = 359
+	// takes Utah's credits: 345 + 14. The #1334 review adds MultiState 20 and
+	// 21 (Florida residents with Virginia and Georgia wages and a military
+	// pension), both clean: 359 + 2.
+	scenariosCleanFloor = 361
 	scenariosRunFloor   = 525
 )
 

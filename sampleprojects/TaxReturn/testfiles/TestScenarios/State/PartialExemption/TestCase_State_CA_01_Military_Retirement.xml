@@ -18,7 +18,7 @@
    <!-- California military retirement test case (CA-MIL-01). -->
    <!-- For 2025 through 2029 California excludes up to $20,000 of federal retirement pay for -->
    <!-- uniformed service when federal AGI is $125,000 or less ($250,000 joint): Schedule CA (540) -->
-   <!-- Part I Section A line 5b column B; R&TC 17132.9 (AB 53, 2025); 2025 Schedule CA instructions. -->
+   <!-- Part I Section A line 5b column B; R&TC 17132.9; 2025 Schedule CA instructions, which cite no bill. -->
    <!-- The limit is a cliff, not a phase-out, and there is no age test. -->
 
    <id>CA-MIL-01</id>

@@ -7,7 +7,7 @@
 <relative_path>MD.xlsx</relative_path>
 <file_name>MD.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:9be782c85a9f4d2be1de210203b16a641276a1730e05fc35d480508c8fb7a382</source_hash>
+<source_hash>sha256:ff73b4ffd37bdf212e7d5b64b10148cc969c5145481646a1015d7f775e3f7c81</source_hash>
 </source>
 <table_name>MD_Tax</table_name>
 <xls_file>MD.xlsx</xls_file>
@@ -96,7 +96,7 @@ result.state_calc_agi result.md_military_retirement_subtraction f- 2550.0 f- 0.0
 <relative_path>MD.xlsx</relative_path>
 <file_name>MD.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:9be782c85a9f4d2be1de210203b16a641276a1730e05fc35d480508c8fb7a382</source_hash>
+<source_hash>sha256:ff73b4ffd37bdf212e7d5b64b10148cc969c5145481646a1015d7f775e3f7c81</source_hash>
 </source>
 <table_name>MD_Military_Retirement_Subtraction</table_name>
 <xls_file>MD.xlsx</xls_file>
@@ -124,7 +124,7 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YYN</columns>
+<columns>YYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -133,7 +133,16 @@ taxpayer.military_retirement_pay 0 f&gt;
 <condition_postfix>
 job.tax_year taxpayer.date_of_birth yearof - 55 &gt;=
 </condition_postfix>
-<columns>YN-</columns>
+<columns>YN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YY-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -144,7 +153,7 @@ job.tax_year taxpayer.date_of_birth yearof - 55 &gt;=
 <action_postfix>
 taxpayer.military_retirement_pay md_military_retirement_exemption_55_plus fmin cvd result.md_military_retirement_subtraction f+ /result.md_military_retirement_subtraction xdef
 </action_postfix>
-<columns>X--</columns>
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -153,7 +162,7 @@ taxpayer.military_retirement_pay md_military_retirement_exemption_55_plus fmin c
 <action_postfix>
 taxpayer.military_retirement_pay md_military_retirement_exemption_under_55 fmin cvd result.md_military_retirement_subtraction f+ /result.md_military_retirement_subtraction xdef
 </action_postfix>
-<columns>-X-</columns>
+<columns>-X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -168,6 +177,10 @@ taxpayer.military_retirement_pay md_military_retirement_exemption_under_55 fmin 
 <policy_statement column="3">
 <policy_description>No military retirement income for this taxpayer.</policy_description>
 <policy_statement_postfix>"No military retirement income for this taxpayer."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

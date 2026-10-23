@@ -1,0 +1,72 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Idaho military retirement test case (ID-MIL-02): retired pay with Social Security (#1330
+        review, finding 2). Form 39R Part B line 8 reduces the cap by Social Security first and
+        only then takes the smaller of the cap and the benefits. -->
+
+   <id>ID-MIL-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>ID</state>
+   <city>Boise</city>
+
+   <!-- Expected values for validation (2025), worked from the inputs and the 2025 forms (#1330).
+        Federal (2025 Form 1040): line 5b military retired pay $30,000 (IRC 61(a)(10)); line 6a
+        Social Security $20,000, line 6b taxable part: provisional income 30,000 + 10,000 = 40,000;
+        the lesser of 85% x 20,000 = 17,000 and 85% x (40,000 - 34,000) = 5,100 + the lesser of
+        10,000 and 4,500 = 9,600 (Pub. 915 worksheet, single). AGI = 30,000 + 9,600 = $39,600.
+        Standard deduction $15,750 + $2,000 (born 3/1/1958, 67) = $17,750; senior deduction
+        $6,000 (MAGI under $75,000; IRC 63(f)(5)). Taxable income $15,850; tax 1,192.50 + 12% x
+        3,925 = $1,663.50.
+        Idaho (2025 Form 39R Part B line 8): 8a maximum $48,216 (single); 8b Railroad Retirement
+        $0; 8c Social Security $20,000; 8d 48,216 - 20,000 = $28,216; 8e qualifying benefits
+        $30,000 (62 or older); 8f the smaller of 8d and 8e = $28,216 -> line 24 -> Form 40 line
+        10. The retirement benefits deduction is $28,216, which TestIdahoRetirementBenefitsCapOrder
+        pins. Form 39R line 7 also subtracts the $9,600 of Social Security taxed federally, so
+        Idaho AGI is 39,600 - 9,600 - 28,216 = $1,784 and Idaho tax $0; that line is not modelled
+        and the federal pass puts the whole $20,000 of Social Security into AGI (SPEC 2.9), so
+        expected_state_tax is not stated and the AGI check fails until those are fixed. -->
+   <expected_agi>39600</expected_agi>
+   <expected_taxable_income>15850</expected_taxable_income>
+   <expected_total_tax>1663.50</expected_total_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Ruth</name>
+         <last_name>Hansen</last_name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>3/1/1958</date_of_birth>
+         <occupation>Military Retiree</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <military_retirement_pay>30000</military_retirement_pay>
+         <social_security_income>20000</social_security_income>
+         <is_senior>true</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>2000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

@@ -7,7 +7,7 @@
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:22845d5cb5e376be034b5df170b5b907ef7efd774f9a9db9eec039dc42e299ea</source_hash>
+<source_hash>sha256:f8b72ace65f9c6e22cb532bea0fd3e77cea6bff934df1ad3983f91ad89786e3e</source_hash>
 </source>
 <table_name>nm_tax</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -128,7 +128,7 @@ result.nm_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:22845d5cb5e376be034b5df170b5b907ef7efd774f9a9db9eec039dc42e299ea</source_hash>
+<source_hash>sha256:f8b72ace65f9c6e22cb532bea0fd3e77cea6bff934df1ad3983f91ad89786e3e</source_hash>
 </source>
 <table_name>NM_Military_Retirement_Exclusion</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -156,7 +156,16 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YN</columns>
+<columns>YNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -167,7 +176,7 @@ taxpayer.military_retirement_pay 0 f&gt;
 <action_postfix>
 taxpayer.military_retirement_pay nm_military_retirement_exemption fmin cvd result.nm_military_retirement_exclusion f+ /result.nm_military_retirement_exclusion xdef
 </action_postfix>
-<columns>X-</columns>
+<columns>X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -179,6 +188,10 @@ taxpayer.military_retirement_pay nm_military_retirement_exemption fmin cvd resul
 <policy_description>No armed forces retirement pay for this taxpayer.</policy_description>
 <policy_statement_postfix>"No armed forces retirement pay for this taxpayer."</policy_statement_postfix>
 </policy_statement>
+<policy_statement column="3">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 
@@ -188,7 +201,7 @@ taxpayer.military_retirement_pay nm_military_retirement_exemption fmin cvd resul
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:22845d5cb5e376be034b5df170b5b907ef7efd774f9a9db9eec039dc42e299ea</source_hash>
+<source_hash>sha256:f8b72ace65f9c6e22cb532bea0fd3e77cea6bff934df1ad3983f91ad89786e3e</source_hash>
 </source>
 <table_name>NM_Tax_Table</table_name>
 <xls_file>NM.xlsx</xls_file>

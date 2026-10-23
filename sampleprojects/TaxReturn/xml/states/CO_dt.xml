@@ -7,7 +7,7 @@
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:71099b203d8852ab8acf660058bc1bcf64ff06587901e1ffc68073f3a21a5b0d</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>co_military_retirement_exemption</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -35,7 +35,7 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YYYN</columns>
+<columns>YYYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -44,7 +44,7 @@ taxpayer.military_retirement_pay 0 f&gt;
 <condition_postfix>
 job.tax_year taxpayer.date_of_birth yearof - 55 &lt;
 </condition_postfix>
-<columns>YNN-</columns>
+<columns>YNN--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -53,7 +53,16 @@ job.tax_year taxpayer.date_of_birth yearof - 55 &lt;
 <condition_postfix>
 job.tax_year taxpayer.date_of_birth yearof - 65 &gt;=
 </condition_postfix>
-<columns>-NY-</columns>
+<columns>-NY--</columns>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YYY-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -64,7 +73,7 @@ job.tax_year taxpayer.date_of_birth yearof - 65 &gt;=
 <action_postfix>
 taxpayer.military_retirement_pay co_military_exemption_under_55 fmin cvd result.co_military_retirement_exemption f+ /result.co_military_retirement_exemption xdef
 </action_postfix>
-<columns>X---</columns>
+<columns>X----</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -73,7 +82,7 @@ taxpayer.military_retirement_pay co_military_exemption_under_55 fmin cvd result.
 <action_postfix>
 taxpayer.military_retirement_pay co_pension_subtraction_55_to_64 fmin cvd result.co_military_retirement_exemption f+ /result.co_military_retirement_exemption xdef
 </action_postfix>
-<columns>-X--</columns>
+<columns>-X---</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -82,7 +91,7 @@ taxpayer.military_retirement_pay co_pension_subtraction_55_to_64 fmin cvd result
 <action_postfix>
 taxpayer.military_retirement_pay co_pension_subtraction_65_plus fmin cvd result.co_military_retirement_exemption f+ /result.co_military_retirement_exemption xdef
 </action_postfix>
-<columns>--X-</columns>
+<columns>--X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -102,6 +111,10 @@ taxpayer.military_retirement_pay co_pension_subtraction_65_plus fmin cvd result.
 <policy_description>No military retirement benefits for this taxpayer.</policy_description>
 <policy_statement_postfix>"No military retirement benefits for this taxpayer."</policy_statement_postfix>
 </policy_statement>
+<policy_statement column="5">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 
@@ -111,7 +124,7 @@ taxpayer.military_retirement_pay co_pension_subtraction_65_plus fmin cvd result.
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:71099b203d8852ab8acf660058bc1bcf64ff06587901e1ffc68073f3a21a5b0d</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>co_pension_subtraction</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -143,7 +156,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:71099b203d8852ab8acf660058bc1bcf64ff06587901e1ffc68073f3a21a5b0d</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>CO_Tax</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -206,7 +219,7 @@ result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:71099b203d8852ab8acf660058bc1bcf64ff06587901e1ffc68073f3a21a5b0d</source_hash>
+<source_hash>sha256:965d9532d6162b64769c4db5dee2eb6dd7803e5af0653110f10f4c863ffd9ddf</source_hash>
 </source>
 <table_name>CO_EITC</table_name>
 <xls_file>CO.xlsx</xls_file>

@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Florida resident with Virginia wages and military retired pay (#1330 review, finding 1).
+        The taxpayer lives in Florida all year and works in Georgia: a nonresident of GA.
+        Federal (2025): AGI = 50,000 wages + 30,000 military retired pay (Form 1040 line 5b;
+        IRC 61(a)(10)) = $80,000; taxable income = 80,000 - 15,750 single standard
+        deduction = $64,250; tax = 5,578.50 + 22% x 15,775 = $9,049.00.
+        Georgia: the nonresident entry's income is built from the income entities, so it is the
+        $50,000 of GA-source wages alone. The pension is not GA-source income and may not be
+        taxed by GA at all (4 U.S.C. 114, a state may not tax the retirement income of a
+        nonresident), so the Schedule 1 line 7 subtraction must not be taken from it: the GA entry's
+        state_tax_before_credits is the same with and without the pension, which
+        TestMilitaryRetirementNotSubtractedForNonresident pins. GA_Tax is a #1200 placeholder,
+        so no expected_ga_nonresident_tax figure is stated. -->
+   <id>MS-21-FL-GA-MILITARY-NONRESIDENT</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>64250</expected_taxable_income>
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>FL</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>full_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>GA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>6/15/1975</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <military_retirement_pay>30000</military_retirement_pay>
+      </taxpayer>
+   </taxpayers>
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Employer in GA</source>
+         <gross_amount>50000</gross_amount>
+         <state_code>GA</state_code>
+      </income>
+   </incomes>
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

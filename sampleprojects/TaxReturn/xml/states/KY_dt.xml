@@ -7,7 +7,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:e825a1235732a3ce70db45284aaefb751f70e6e36f32a4715d6b22bdeb2eabb5</source_hash>
+<source_hash>sha256:37f5f19411648d99980839b8d4b6e004ce703ef2a60f7f3181b9e5ee6dcde335</source_hash>
 </source>
 <table_name>ky_military_retirement_exemption</table_name>
 <xls_file>KY.xlsx</xls_file>
@@ -35,7 +35,16 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YN</columns>
+<columns>YNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -46,7 +55,7 @@ taxpayer.military_retirement_pay 0 f&gt;
 <action_postfix>
 taxpayer.military_retirement_pay ky_pension_exclusion fmin cvd result.ky_military_retirement_exemption f+ /result.ky_military_retirement_exemption xdef
 </action_postfix>
-<columns>X-</columns>
+<columns>X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -58,6 +67,10 @@ taxpayer.military_retirement_pay ky_pension_exclusion fmin cvd result.ky_militar
 <policy_description>No military retired pay for this taxpayer.</policy_description>
 <policy_statement_postfix>"No military retired pay for this taxpayer."</policy_statement_postfix>
 </policy_statement>
+<policy_statement column="3">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 
@@ -67,7 +80,7 @@ taxpayer.military_retirement_pay ky_pension_exclusion fmin cvd result.ky_militar
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:e825a1235732a3ce70db45284aaefb751f70e6e36f32a4715d6b22bdeb2eabb5</source_hash>
+<source_hash>sha256:37f5f19411648d99980839b8d4b6e004ce703ef2a60f7f3181b9e5ee6dcde335</source_hash>
 </source>
 <table_name>KY_Tax</table_name>
 <xls_file>KY.xlsx</xls_file>

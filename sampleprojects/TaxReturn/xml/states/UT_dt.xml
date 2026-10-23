@@ -7,7 +7,7 @@
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:e52b3a9902b1586910913c322881be265e3d877c7bdd8f838dcc6943781a670e</source_hash>
+<source_hash>sha256:4bac888a37bb9763368e5829b0786e08a257669dad8d4d8eee12fedae1449ee6</source_hash>
 </source>
 <table_name>ut_tax</table_name>
 <xls_file>UT.xlsx</xls_file>
@@ -105,7 +105,7 @@ result.ut_base_tax result.ut_taxpayer_credit f- result.ut_military_retirement_cr
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:e52b3a9902b1586910913c322881be265e3d877c7bdd8f838dcc6943781a670e</source_hash>
+<source_hash>sha256:4bac888a37bb9763368e5829b0786e08a257669dad8d4d8eee12fedae1449ee6</source_hash>
 </source>
 <table_name>UT_Military_Retirement_Credit</table_name>
 <xls_file>UT.xlsx</xls_file>
@@ -133,7 +133,16 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YN</columns>
+<columns>YNY</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -144,7 +153,7 @@ taxpayer.military_retirement_pay 0 f&gt;
 <action_postfix>
 taxpayer.military_retirement_pay ut_tax_rate fmul cvd result.ut_military_retirement_credit f+ /result.ut_military_retirement_credit xdef
 </action_postfix>
-<columns>X-</columns>
+<columns>X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -155,6 +164,10 @@ taxpayer.military_retirement_pay ut_tax_rate fmul cvd result.ut_military_retirem
 <policy_statement column="2">
 <policy_description>No military retirement pay for this taxpayer.</policy_description>
 <policy_statement_postfix>"No military retirement pay for this taxpayer."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

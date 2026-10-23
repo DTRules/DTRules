@@ -7,7 +7,7 @@
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:f935543bb70fda8921c903b34e8a46281e7133d13d2e5474ce79c0b7b9ff7025</source_hash>
+<source_hash>sha256:81d0e65c5801353c3da351b56a067d10b6bd75c5f845be0293a994f9dcf60160</source_hash>
 </source>
 <table_name>CA_Tax</table_name>
 <xls_file>CA.xlsx</xls_file>
@@ -83,7 +83,7 @@ result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:f935543bb70fda8921c903b34e8a46281e7133d13d2e5474ce79c0b7b9ff7025</source_hash>
+<source_hash>sha256:81d0e65c5801353c3da351b56a067d10b6bd75c5f845be0293a994f9dcf60160</source_hash>
 </source>
 <table_name>ca_renter_credit</table_name>
 <xls_file>CA.xlsx</xls_file>
@@ -105,7 +105,7 @@ result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:f935543bb70fda8921c903b34e8a46281e7133d13d2e5474ce79c0b7b9ff7025</source_hash>
+<source_hash>sha256:81d0e65c5801353c3da351b56a067d10b6bd75c5f845be0293a994f9dcf60160</source_hash>
 </source>
 <table_name>ca_military_retirement_exemption</table_name>
 <xls_file>CA.xlsx</xls_file>
@@ -133,7 +133,7 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YYN</columns>
+<columns>YYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -142,7 +142,7 @@ taxpayer.military_retirement_pay 0 f&gt;
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<columns>YN-</columns>
+<columns>YN--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -151,7 +151,7 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 result.state_calc_total_agi ca_military_agi_limit_joint f&lt;=
 </condition_postfix>
-<columns>Y--</columns>
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -160,7 +160,16 @@ result.state_calc_total_agi ca_military_agi_limit_joint f&lt;=
 <condition_postfix>
 result.state_calc_total_agi ca_military_agi_limit_single f&lt;=
 </condition_postfix>
-<columns>-Y-</columns>
+<columns>-Y--</columns>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YY-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -171,21 +180,21 @@ result.state_calc_total_agi ca_military_agi_limit_single f&lt;=
 <action_postfix>
 taxpayer.military_retirement_pay ca_military_retirement_exemption_amount fmin cvd result.ca_military_retirement_exemption f+ /result.ca_military_retirement_exemption xdef
 </action_postfix>
-<columns>XX-</columns>
+<columns>XX--</columns>
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>Joint return or surviving spouse with federal AGI of $250,000 or less: up to $20,000 of military retirement pay is excluded, Schedule CA (540) line 5b column B (R&amp;TC 17132.9, AB 53; 2025 Schedule CA instructions). Survivor Benefit Plan annuities have their own $20,000 and are not modelled.</policy_description>
-<policy_statement_postfix>"Joint return or surviving spouse with federal AGI of $250,000 or less: up to $20,000 of military retirement pay is excluded, Schedule CA (540) line 5b column B (R&amp;TC 17132.9, AB 53; 2025 Schedule CA instructions). Survivor Benefit Plan annuities have their own $20,000 and are not modelled."</policy_statement_postfix>
+<policy_description>Joint return or surviving spouse with federal AGI of $250,000 or less: up to $20,000 of military retirement pay is excluded, Schedule CA (540) line 5b column B (R&amp;TC 17132.9; 2025 Schedule CA instructions). Survivor Benefit Plan annuities have their own $20,000 and are not modelled.</policy_description>
+<policy_statement_postfix>"Joint return or surviving spouse with federal AGI of $250,000 or less: up to $20,000 of military retirement pay is excluded, Schedule CA (540) line 5b column B (R&amp;TC 17132.9; 2025 Schedule CA instructions). Survivor Benefit Plan annuities have their own $20,000 and are not modelled."</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>Any other filer with federal AGI of $125,000 or less: up to $20,000 excluded (R&amp;TC 17132.9).</policy_description>
 <policy_statement_postfix>"Any other filer with federal AGI of $125,000 or less: up to $20,000 excluded (R&amp;TC 17132.9)."</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
-<policy_description>Federal AGI above the limit, or no retirement pay: no exclusion; the limit is a cliff, not a phase-out.</policy_description>
-<policy_statement_postfix>"Federal AGI above the limit, or no retirement pay: no exclusion; the limit is a cliff, not a phase-out."</policy_statement_postfix>
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -196,7 +205,7 @@ taxpayer.military_retirement_pay ca_military_retirement_exemption_amount fmin cv
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:f935543bb70fda8921c903b34e8a46281e7133d13d2e5474ce79c0b7b9ff7025</source_hash>
+<source_hash>sha256:81d0e65c5801353c3da351b56a067d10b6bd75c5f845be0293a994f9dcf60160</source_hash>
 </source>
 <table_name>CA_AGI</table_name>
 <xls_file>CA.xlsx</xls_file>

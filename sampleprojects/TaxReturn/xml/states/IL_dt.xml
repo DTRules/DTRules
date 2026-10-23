@@ -7,7 +7,7 @@
 <relative_path>IL.xlsx</relative_path>
 <file_name>IL.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:8eb8308bda363c6b6af34c9756b369fe0b9df5a3ba1b2857d7144ea39d8c3d52</source_hash>
+<source_hash>sha256:88e8d8ada27ea3066edb7140d57067df0c09ea8fd9e68f2ac67f96b1512b450f</source_hash>
 </source>
 <table_name>il_tax</table_name>
 <xls_file>IL.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail; set result.il_military_retirement_exclusion = result.military_retirement_income; set result.il_adjusted_agi = the maximum of (result.state_calc_agi - result.il_military_retirement_exclusion) and 0.0; add "  IL-1040 line 5 retirement subtraction (military retired pay): $" + result.il_military_retirement_exclusion to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail; set result.il_military_retirement_exclusion = 0.0; if result.state_calc_resident_status is equal to "full_year" then { set result.il_military_retirement_exclusion = result.military_retirement_income; } endif; set result.il_adjusted_agi = the maximum of (result.state_calc_agi - result.il_military_retirement_exclusion) and 0.0; add "  IL-1040 line 5 retirement subtraction (military retired pay): $" + result.il_military_retirement_exclusion to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.il_state_tax xdef 0 cvd /result.il_taxable_income xdef 0 cvd /result.il_total_exemptions xdef "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" job.audit_trail swap addto result.military_retirement_income cvd /result.il_military_retirement_exclusion xdef result.state_calc_agi result.il_military_retirement_exclusion f- 0.0 fmax cvd /result.il_adjusted_agi xdef "  IL-1040 line 5 retirement subtraction (military retired pay): $" result.il_military_retirement_exclusion strconcat job.audit_trail swap addto
+0 cvd /result.il_state_tax xdef 0 cvd /result.il_taxable_income xdef 0 cvd /result.il_total_exemptions xdef "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" job.audit_trail swap addto 0.0 cvd /result.il_military_retirement_exclusion xdef { result.military_retirement_income cvd /result.il_military_retirement_exclusion xdef } result.state_calc_resident_status "full_year" streq if result.state_calc_agi result.il_military_retirement_exclusion f- 0.0 fmax cvd /result.il_adjusted_agi xdef "  IL-1040 line 5 retirement subtraction (military retired pay): $" result.il_military_retirement_exclusion strconcat job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>

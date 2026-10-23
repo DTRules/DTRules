@@ -7,7 +7,7 @@
 <relative_path>GA.xlsx</relative_path>
 <file_name>GA.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:5cb3d6170a5f496d520297a7fa428a146b801223de3a03a1e436447dfa7337e4</source_hash>
+<source_hash>sha256:01416d2adb4e7d66e50e1006202d21686ae558717c6fb6846038cd192b46d3d5</source_hash>
 </source>
 <table_name>GA_Tax</table_name>
 <xls_file>GA.xlsx</xls_file>
@@ -96,7 +96,7 @@ result.state_calc_agi result.ga_military_retirement_exemption f- 12000.0 f- 0.0 
 <relative_path>GA.xlsx</relative_path>
 <file_name>GA.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:5cb3d6170a5f496d520297a7fa428a146b801223de3a03a1e436447dfa7337e4</source_hash>
+<source_hash>sha256:01416d2adb4e7d66e50e1006202d21686ae558717c6fb6846038cd192b46d3d5</source_hash>
 </source>
 <table_name>GA_Retirement_Income_Exclusion</table_name>
 <xls_file>GA.xlsx</xls_file>
@@ -124,7 +124,7 @@ dup taxpayers forall pop
 <condition_postfix>
 taxpayer.military_retirement_pay 0 f&gt;
 </condition_postfix>
-<columns>YYYYN</columns>
+<columns>YYYYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -133,7 +133,7 @@ taxpayer.military_retirement_pay 0 f&gt;
 <condition_postfix>
 job.tax_year taxpayer.date_of_birth yearof - 62 &lt;
 </condition_postfix>
-<columns>YYNN-</columns>
+<columns>YYNN--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -142,7 +142,7 @@ job.tax_year taxpayer.date_of_birth yearof - 62 &lt;
 <condition_postfix>
 taxpayer.w2_wages ga_military_exemption_under_62_earned_threshold f&gt;
 </condition_postfix>
-<columns>YN---</columns>
+<columns>YN----</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -151,7 +151,16 @@ taxpayer.w2_wages ga_military_exemption_under_62_earned_threshold f&gt;
 <condition_postfix>
 job.tax_year taxpayer.date_of_birth yearof - 65 &gt;=
 </condition_postfix>
-<columns>--YN-</columns>
+<columns>--YN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Full-year resident entry only. A part-year or nonresident entry's income is built from the income entities, so the pension is not in it, and 4 U.S.C. 114 bars a state from taxing a nonresident's retirement income (#1330 review).</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "full_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "full_year" streq
+</condition_postfix>
+<columns>YYYY-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -162,7 +171,7 @@ job.tax_year taxpayer.date_of_birth yearof - 65 &gt;=
 <action_postfix>
 taxpayer.military_retirement_pay ga_military_exemption_under_62_base 2.0 fmul fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
 </action_postfix>
-<columns>X----</columns>
+<columns>X-----</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -171,7 +180,7 @@ taxpayer.military_retirement_pay ga_military_exemption_under_62_base 2.0 fmul fm
 <action_postfix>
 taxpayer.military_retirement_pay ga_military_exemption_under_62_base fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
 </action_postfix>
-<columns>-X---</columns>
+<columns>-X----</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -180,7 +189,7 @@ taxpayer.military_retirement_pay ga_military_exemption_under_62_base fmin cvd re
 <action_postfix>
 taxpayer.w2_wages ga_retirement_exclusion_earned_income_cap fmin taxpayer.military_retirement_pay f+ ga_military_exemption_65_plus fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
 </action_postfix>
-<columns>--X--</columns>
+<columns>--X---</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -189,7 +198,7 @@ taxpayer.w2_wages ga_retirement_exclusion_earned_income_cap fmin taxpayer.milita
 <action_postfix>
 taxpayer.w2_wages ga_retirement_exclusion_earned_income_cap fmin taxpayer.military_retirement_pay f+ ga_military_exemption_62_to_64 fmin cvd result.ga_military_retirement_exemption f+ /result.ga_military_retirement_exemption xdef
 </action_postfix>
-<columns>---X-</columns>
+<columns>---X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -212,6 +221,10 @@ taxpayer.w2_wages ga_retirement_exclusion_earned_income_cap fmin taxpayer.milita
 <policy_statement column="5">
 <policy_description>No military retired pay for this taxpayer; the retirement income exclusion for other income is not modelled (#1200).</policy_description>
 <policy_statement_postfix>"No military retired pay for this taxpayer; the retirement income exclusion for other income is not modelled (#1200)."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted.</policy_description>
+<policy_statement_postfix>"Not a full-year resident entry: the pension is not in this entry's sourced income (the roster builds it from the income entities) and 4 U.S.C. 114 bars taxing a nonresident's retirement income, so nothing is subtracted."</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
